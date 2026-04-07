@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{report_title}}</title>
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #1a1a1a;
+      background: #f3f4f6;
+    }
+
+    /* ── Header ── */
+    header {
+      background: #111827;
+      color: #fff;
+      padding: 0;
+    }
+    .header-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 36px 28px 28px;
+    }
+    .report-badge {
+      display: inline-block;
+      background: #6366f1;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 3px;
+      margin-bottom: 12px;
+    }
+    header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: #f9fafb;
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px 24px;
+      margin-top: 14px;
+    }
+    .meta-item {
+      font-size: 13px;
+      color: #9ca3af;
+    }
+    .meta-item strong {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #6b7280;
+      margin-bottom: 2px;
+    }
+    .meta-item span { color: #e5e7eb; }
+
+    /* ── Score bar (optional) ── */
+    .score-bar {
+      background: #1f2937;
+      border-top: 1px solid #374151;
+    }
+    .score-bar-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .score-label {
+      font-size: 12px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      white-space: nowrap;
+    }
+    .score-track {
+      flex: 1;
+      height: 6px;
+      background: #374151;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .score-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #ef4444, #f59e0b, #22c55e);
+      width: {{score_percent}}; /* e.g. "62%" */
+    }
+    .score-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #f9fafb;
+      white-space: nowrap;
+    }
+
+    /* ── Layout ── */
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 28px 56px;
+    }
+
+    /* ── Section ── */
+    section {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    section > h2 {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6366f1;
+      padding: 14px 20px;
+      border-bottom: 1px solid #f3f4f6;
+      background: #fafaff;
+    }
+    .section-body { padding: 20px; }
+
+    /* ── Executive summary ── */
+    .summary-text {
+      font-size: 15px;
+      color: #374151;
+      line-height: 1.75;
+    }
+
+    /* ── Scope list ── */
+    .scope-list {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 8px;
+    }
+    .scope-list li {
+      font-size: 13px;
+      color: #374151;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      padding: 6px 12px;
+    }
+    .scope-list li::before {
+      content: "✓ ";
+      color: #6366f1;
+      font-weight: 700;
+    }
+
+    /* ── Check table ── */
+    .check-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .check-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 8px 14px;
+      border-bottom: 1px solid #e5e7eb;
+      background: #f9fafb;
+    }
+    .check-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #f3f4f6;
+      vertical-align: top;
+      color: #374151;
+    }
+    .check-table tr:last-child td { border-bottom: none; }
+    .check-table td:first-child { font-weight: 500; color: #111827; }
+
+    /* ── Module sub-headers ── */
+    .module-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9ca3af;
+      padding: 12px 14px 4px;
+      border-top: 1px solid #f3f4f6;
+    }
+    .module-label:first-child { border-top: none; }
+
+    /* ── Status badges ── */
+    .status {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .status-pass        { background: #dcfce7; color: #166534; }
+    .status-fail        { background: #fee2e2; color: #991b1b; }
+    .status-warn        { background: #fef9c3; color: #854d0e; }
+    .status-info        { background: #dbeafe; color: #1e40af; }
+    .status-na          { background: #f3f4f6; color: #6b7280; }
+    .status-unverified  { background: #f3f4f6; color: #6b7280; font-style: italic; }
+
+    /* ── Priority matrix tags ── */
+    .effort-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-left: 6px;
+    }
+    .effort-low-high  { background: #dcfce7; color: #166534; }
+    .effort-med-high  { background: #fef9c3; color: #854d0e; }
+    .effort-high-high { background: #fee2e2; color: #991b1b; }
+    .effort-low-med   { background: #dbeafe; color: #1e40af; }
+
+    /* ── Finding articles ── */
+    article.finding {
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    article.finding:last-child { margin-bottom: 0; }
+    .finding-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .finding-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111827;
+      flex: 1;
+    }
+    .finding-module {
+      font-size: 10px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+    .finding-body {
+      padding: 14px 16px;
+      display: grid;
+      gap: 12px;
+    }
+    .finding-field {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 8px;
+      font-size: 14px;
+    }
+    .finding-field .label {
+      font-weight: 700;
+      color: #6b7280;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding-top: 2px;
+    }
+    .finding-field .value { color: #374151; line-height: 1.65; }
+    .finding-field .value code {
+      background: #f3f4f6;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 13px;
+      color: #111827;
+    }
+
+    /* ── Priority actions ── */
+    ol.priority-list {
+      padding-left: 0;
+      list-style: none;
+      counter-reset: priority-counter;
+    }
+    ol.priority-list li {
+      counter-increment: priority-counter;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 14px;
+      color: #374151;
+      line-height: 1.6;
+    }
+    ol.priority-list li:last-child { border-bottom: none; }
+    ol.priority-list li::before {
+      content: counter(priority-counter);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      height: 24px;
+      background: #6366f1;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ── Limitations ── */
+    .limitations-box {
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: 5px;
+      padding: 14px 18px;
+      font-size: 13px;
+      color: #78350f;
+      line-height: 1.75;
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: #111827;
+      border-top: 1px solid #1f2937;
+    }
+    .footer-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 16px 28px;
+      text-align: center;
+      font-size: 12px;
+      color: #4b5563;
+    }
+    .footer-inner strong { color: #6b7280; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <span class="report-badge">Advanced Full SEO Audit</span>
+    <h1>{{report_title}}</h1>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <strong>URL</strong>
+        <span>{{url}}</span>
+      </div>
+      <div class="meta-item">
+        <strong>Primary Keyword</strong>
+        <span>{{primary_keyword}}</span>
+      </div>
+      <div class="meta-item">
+        <strong>Audit Level</strong>
+        <span>{{audit_level}}</span>
+      </div>
+      <div class="meta-item">
+        <strong>Generated</strong>
+        <span>{{generated_date}}</span>
+      </div>
+      <div class="meta-item">
+        <strong>Powered by</strong>
+        <span>OpenClaw + Claude</span>
+      </div>
+    </div>
+  </div>
+  <div class="score-bar">
+    <div class="score-bar-inner">
+      <span class="score-label">SEO Health Score</span>
+      <div class="score-track">
+        <div class="score-fill"></div>
+        <!-- Set width via {{score_percent}} e.g. style="width:62%" -->
+      </div>
+      <span class="score-value">{{score_value}}</span>
+      <!-- e.g. "62 / 100" -->
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- Executive Summary -->
+  <section>
+    <h2>Executive Summary</h2>
+    <div class="section-body">
+      <p class="summary-text">{{executive_summary}}</p>
+    </div>
+  </section>
+
+  <!-- Audit Scope -->
+  <section>
+    <h2>Audit Scope</h2>
+    <div class="section-body">
+      {{scope}}
+      <!--
+        Expected format for scope:
+        <ul class="scope-list">
+          <li>Technical SEO</li>
+          <li>On-Page SEO</li>
+          <li>Structured Data</li>
+          <li>Content Quality (E-E-A-T)</li>
+          <li>Performance Signals</li>
+          <li>Internal Linking</li>
+        </ul>
+        <p style="margin-top:12px;font-size:13px;color:#6b7280">
+          Note: Core Web Vitals data not available — performance signals are limited to observable page structure.
+        </p>
+      -->
+    </div>
+  </section>
+
+  <!-- All Findings (grouped by module) -->
+  <section>
+    <h2>Findings</h2>
+    <div class="section-body">
+      {{findings_html}}
+      <!--
+        Repeat the following block for each module group:
+
+        <p class="module-label">Module: Technical SEO</p>
+
+        <article class="finding">
+          <div class="finding-header">
+            <span class="status status-fail">Critical</span>
+            <h3>Noindex Tag Detected</h3>
+            <span class="finding-module">Technical SEO</span>
+          </div>
+          <div class="finding-body">
+            <div class="finding-field">
+              <span class="label">Evidence</span>
+              <span class="value">
+                Found <code>&lt;meta name="robots" content="noindex"&gt;</code> in the page
+                <code>&lt;head&gt;</code>. This page is actively excluded from Google's index.
+              </span>
+            </div>
+            <div class="finding-field">
+              <span class="label">Impact</span>
+              <span class="value">
+                The page will not appear in Google search results regardless of its content quality
+                or backlink profile. This is the highest-severity SEO issue possible for a single page.
+              </span>
+            </div>
+            <div class="finding-field">
+              <span class="label">Fix</span>
+              <span class="value">
+                Remove the <code>noindex</code> directive immediately. If the intent was to block
+                a staging page, ensure the production URL does not carry over this tag.
+                Verify via Google Search Console → URL Inspection after removal.
+              </span>
+            </div>
+          </div>
+        </article>
+
+        <article class="finding">
+          <div class="finding-header">
+            <span class="status status-warn">Warning</span>
+            <h3>Missing FAQ Schema Opportunity</h3>
+            <span class="finding-module">Structured Data</span>
+          </div>
+          <div class="finding-body">
+            <div class="finding-field">
+              <span class="label">Evidence</span>
+              <span class="value">
+                [ASSUMPTION] Page content appears to include 4 question-and-answer blocks.
+                No <code>FAQPage</code> schema detected in source.
+              </span>
+            </div>
+            <div class="finding-field">
+              <span class="label">Impact</span>
+              <span class="value">
+                Without FAQ schema, the page misses eligibility for FAQ rich results,
+                which typically increase SERP real estate and click-through rates by 10–30%.
+              </span>
+            </div>
+            <div class="finding-field">
+              <span class="label">Fix</span>
+              <span class="value">
+                Add <code>FAQPage</code> JSON-LD schema to the page. Map each visible Q&amp;A
+                pair to a <code>Question</code> entity with <code>acceptedAnswer</code>.
+                Validate at schema.org/validator before deploying.
+              </span>
+            </div>
+          </div>
+        </article>
+      -->
+    </div>
+  </section>
+
+  <!-- Priority Actions -->
+  <section>
+    <h2>Priority Actions</h2>
+    <div class="section-body">
+      {{priority_actions_html}}
+      <!--
+        Expected format:
+        <ol class="priority-list">
+          <li>
+            Remove the noindex meta tag immediately — the page is currently excluded from Google's index.
+            <span class="effort-tag effort-low-high">Low Effort / High Impact</span>
+          </li>
+          <li>
+            Rewrite the title tag to 50–60 characters, leading with the primary keyword.
+            <span class="effort-tag effort-low-high">Low Effort / High Impact</span>
+          </li>
+          <li>
+            Add FAQPage JSON-LD schema to capture rich result eligibility.
+            <span class="effort-tag effort-med-high">Medium Effort / High Impact</span>
+          </li>
+          <li>
+            Expand meta description to 130–155 characters with a clear call to action.
+            <span class="effort-tag effort-low-med">Low Effort / Medium Impact</span>
+          </li>
+          <li>
+            Add the Sitemap directive to robots.txt pointing to /sitemap.xml.
+            <span class="effort-tag effort-low-med">Low Effort / Medium Impact</span>
+          </li>
+        </ol>
+      -->
+    </div>
+  </section>
+
+  <!-- Limitations & Notes -->
+  <section>
+    <h2>Limitations &amp; Notes</h2>
+    <div class="section-body">
+      <div class="limitations-box">
+        {{limitations}}
+        <!--
+          Example:
+          This audit is based on publicly accessible page signals at the time of analysis.
+          The following data sources were not available and are therefore not included:
+          source code review, JavaScript rendering analysis, Core Web Vitals measurements,
+          Google Search Console data, crawl log analysis, and competitive benchmarking.
+          All findings marked [UNVERIFIED] or [ASSUMPTION] indicate areas where additional
+          data collection is recommended before taking action.
+        -->
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    Generated by <strong>OpenClaw seo-audit-full</strong> · Advanced Full SEO Audit Report · {{generated_date}}
+  </div>
+</footer>
+
+</body>
+</html>

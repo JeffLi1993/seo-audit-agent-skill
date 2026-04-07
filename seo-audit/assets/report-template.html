@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{report_title}}</title>
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #1a1a1a;
+      background: #f5f5f5;
+    }
+
+    /* ── Layout ── */
+    header, main, footer {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Header ── */
+    header {
+      background: #fff;
+      border-bottom: 3px solid #0f62fe;
+      padding-top: 32px;
+      padding-bottom: 24px;
+      margin-bottom: 0;
+      max-width: 100%;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    header .inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .report-badge {
+      display: inline-block;
+      background: #0f62fe;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 3px;
+      margin-bottom: 10px;
+    }
+    header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0a0a0a;
+      margin-bottom: 8px;
+    }
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #555;
+    }
+    .meta-row span strong { color: #333; }
+
+    /* ── Main content ── */
+    main {
+      padding-top: 28px;
+      padding-bottom: 48px;
+    }
+
+    /* ── Section ── */
+    section {
+      background: #fff;
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    section > h2 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #0f62fe;
+      padding: 14px 20px;
+      border-bottom: 1px solid #e8e8e8;
+      background: #f9fbff;
+    }
+    section > .section-body {
+      padding: 20px;
+    }
+
+    /* ── Executive summary ── */
+    .summary-verdict {
+      font-size: 14px;
+      color: #444;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .summary-groups {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    .summary-group {
+      border-radius: 5px;
+      padding: 12px 14px;
+    }
+    .summary-group.critical { background: #fff0f0; border: 1px solid #fcd0d0; }
+    .summary-group.warnings { background: #fffbea; border: 1px solid #f0e08a; }
+    .summary-group.passing  { background: #f0faf3; border: 1px solid #b8e8c8; }
+    .summary-group-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 8px;
+    }
+    .summary-group.critical .summary-group-label { color: #c0392b; }
+    .summary-group.warnings .summary-group-label { color: #856404; }
+    .summary-group.passing  .summary-group-label { color: #1a6b35; }
+    .summary-group ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .summary-group ul li {
+      font-size: 13px;
+      color: #333;
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      line-height: 1.45;
+    }
+    .summary-group ul li:last-child { border-bottom: none; }
+    .summary-group ul li::before {
+      margin-right: 5px;
+    }
+    .summary-group.critical ul li::before { content: "✕"; color: #c0392b; font-weight: 700; }
+    .summary-group.warnings ul li::before { content: "!"; color: #856404; font-weight: 700; }
+    .summary-group.passing  ul li::before { content: "✓"; color: #1a6b35; font-weight: 700; }
+    .summary-empty {
+      font-size: 12px;
+      color: #aaa;
+      font-style: italic;
+    }
+
+    /* ── Check table ── */
+    .check-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .check-table th {
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 8px 12px;
+      border-bottom: 1px solid #e8e8e8;
+      background: #fafafa;
+    }
+    .check-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f0f0f0;
+      vertical-align: top;
+    }
+    .check-table tr:last-child td { border-bottom: none; }
+    /* Detail cell: issue description + fix suggestion */
+    .detail-issue {
+      font-size: 13px;
+      color: #333;
+      line-height: 1.55;
+    }
+    .detail-fix {
+      margin-top: 5px;
+      font-size: 12px;
+      color: #1a6b35;
+      line-height: 1.5;
+    }
+    .detail-fix::before {
+      content: "Fix: ";
+      font-weight: 700;
+    }
+
+    /* ── Status badges ── */
+    .status {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .status-pass  { background: #d4edda; color: #155724; }
+    .status-fail  { background: #f8d7da; color: #721c24; }
+    .status-warn  { background: #fff3cd; color: #856404; }
+    .status-info  { background: #d1ecf1; color: #0c5460; }
+    .status-na    { background: #e9ecef; color: #495057; }
+
+    /* ── Finding articles ── */
+    article.finding {
+      border: 1px solid #e0e0e0;
+      border-radius: 5px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    article.finding:last-child { margin-bottom: 0; }
+    .finding-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: #fafafa;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .finding-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      flex: 1;
+    }
+    .finding-body {
+      padding: 14px 16px;
+      display: grid;
+      gap: 10px;
+    }
+    .finding-field {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 8px;
+      font-size: 14px;
+    }
+    .finding-field .label {
+      font-weight: 600;
+      color: #555;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding-top: 2px;
+    }
+    .finding-field .value { color: #333; }
+
+    /* ── Priority actions ── */
+    ol.priority-list {
+      padding-left: 20px;
+      font-size: 14px;
+      color: #333;
+      line-height: 1.8;
+    }
+    ol.priority-list li { margin-bottom: 6px; }
+
+    /* ── Limitations ── */
+
+    /* ── Upgrade prompt ── */
+    .upgrade-box {
+      background: #eef4ff;
+      border: 1px solid #b8d0ff;
+      border-radius: 5px;
+      padding: 16px 20px;
+      font-size: 14px;
+      color: #1a3c7a;
+    }
+    .upgrade-box strong { color: #0f62fe; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: #999;
+      padding-top: 16px;
+      padding-bottom: 32px;
+      border-top: 1px solid #e0e0e0;
+      margin-top: 0;
+      max-width: 100%;
+      background: #fff;
+    }
+    footer .inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 16px 24px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="inner">
+    <span class="report-badge">SEO Audit Report</span>
+    <h1>{{report_title}}</h1>
+    <div class="meta-row">
+      <span><strong>URL:</strong> {{url}}</span>
+      <span><strong>Audit Level:</strong> {{audit_level}}</span>
+      <span><strong>Created:</strong> {{generated_date}}</span>
+      <span><strong>Powered by:</strong> Jeff</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- Audit Summary -->
+  <section>
+    <h2>Audit Summary</h2>
+    <div class="section-body">
+
+      <!-- One-line verdict: e.g. "Found 2 critical issues and 1 warning across 6 checks." -->
+      <p class="summary-verdict">{{summary_verdict}}</p>
+
+      <div class="summary-groups">
+
+        <!-- Critical issues (status: fail) — one <li> per issue, e.g. "Missing H1 tag" -->
+        <div class="summary-group critical">
+          <div class="summary-group-label">Critical</div>
+          <ul>
+            {{summary_critical_html}}
+            <!-- e.g. <li>Title tag missing</li><li>No H1 found</li> -->
+            <!-- If none: <li class="summary-empty">None</li> -->
+          </ul>
+        </div>
+
+        <!-- Warnings (status: warn) — one <li> per warning, e.g. "Title too long (78 chars)" -->
+        <div class="summary-group warnings">
+          <div class="summary-group-label">Warnings</div>
+          <ul>
+            {{summary_warnings_html}}
+            <!-- e.g. <li>Title is 78 chars (> 60)</li> -->
+            <!-- If none: <li class="summary-empty">None</li> -->
+          </ul>
+        </div>
+
+        <!-- Passing checks (status: pass) — one <li> per check -->
+        <div class="summary-group passing">
+          <div class="summary-group-label">Passing</div>
+          <ul>
+            {{summary_passing_html}}
+            <!-- e.g. <li>Single H1 present</li><li>Canonical correct</li> -->
+            <!-- If none: <li class="summary-empty">None</li> -->
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Site-Level Checks -->
+  <section>
+    <h2>Site Checks</h2>
+    <div class="section-body">
+      {{site_checks_html}}
+      <!--
+        Expected format for site_checks_html:
+        - Pass rows: use <div class="detail-issue"> only.
+        - Fail / Warn rows: use both <div class="detail-issue"> and <div class="detail-fix">.
+
+        <table class="check-table">
+          <thead>
+            <tr><th>Check</th><th>Status</th><th>Detail</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>sitemap.xml</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>
+                <div class="detail-issue">Found at /sitemap.xml — 142 URLs listed.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>robots.txt</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">File found but no Sitemap: directive present. Crawlers cannot auto-discover the sitemap from robots.txt.</div>
+                <div class="detail-fix">Add "Sitemap: https://example.com/sitemap.xml" to robots.txt.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>sitemap.xml</td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td>
+                <div class="detail-issue">HTTP 200 returned but body is HTML, not valid XML. Google cannot parse this as a sitemap.</div>
+                <div class="detail-fix">Create a valid XML sitemap at /sitemap.xml using the sitemaps.org protocol. Submit it in Google Search Console.</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      -->
+    </div>
+  </section>
+
+  <!-- Page-Level Checks -->
+  <section>
+    <h2>Page Checks</h2>
+    <div class="section-body">
+      {{page_checks_html}}
+      <!--
+        Expected format for page_checks_html:
+        - Pass rows: use <div class="detail-issue"> only.
+        - Fail / Warn rows: use both <div class="detail-issue"> and <div class="detail-fix">.
+
+        <table class="check-table">
+          <thead>
+            <tr><th>Check</th><th>Status</th><th>Detail</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>H1 Tag</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>
+                <div class="detail-issue">Single H1 found: "Best Running Shoes 2025".</div>
+              </td>
+            </tr>
+            <tr>
+              <td>H1 Tag</td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td>
+                <div class="detail-issue">3 H1 tags found: "Home", "Welcome", "Our Products". Multiple H1s dilute heading hierarchy and confuse crawlers about the primary topic.</div>
+                <div class="detail-fix">Keep exactly one H1. Include the primary keyword or a natural variant. Demote remaining headings to H2.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Title Tag</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">Title is 78 characters — exceeds the 60-char recommendation and may be truncated in SERPs.</div>
+                <div class="detail-fix">Shorten to 50–60 characters. Lead with the primary keyword. Remove filler words or redundant brand suffixes.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Meta Description</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">Present but only 95 characters — below the 120-char minimum. Google may auto-generate a less relevant snippet.</div>
+                <div class="detail-fix">Expand to 120–160 characters. Summarize the page value and include a natural call to action.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Canonical Tag</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>
+                <div class="detail-issue">Self-referencing canonical present.</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      -->
+    </div>
+  </section>
+
+  <!-- Priority Actions -->
+  <section>
+    <h2>Priority Actions</h2>
+    <div class="section-body">
+      {{priority_actions_html}}
+      <!--
+        Expected format:
+        <ol class="priority-list">
+          <li>Shorten the title tag to under 60 characters, leading with the primary keyword.</li>
+          <li>Expand the meta description to 120–160 characters with a clear call to action.</li>
+          <li>Add a Sitemap directive to robots.txt pointing to /sitemap.xml.</li>
+        </ol>
+      -->
+    </div>
+  </section>
+
+  <!-- Insights -->
+  <section>
+    <h2>Insight Walkthrough <span style="font-size:11px;font-weight:400;color:#aaa;letter-spacing:0;text-transform:none;margin-left:6px;">optional — detailed evidence &amp; reasoning</span></h2>
+    <div class="section-body">
+      {{insights_html}}
+      <!--
+        Expected format for insights_html (repeat <article> per insight):
+
+        <article class="finding">
+          <div class="finding-header">
+            <span class="status status-fail">Critical</span>
+            <h3>Title Tag Too Long</h3>
+          </div>
+          <div class="finding-body">
+            <div class="finding-field">
+              <span class="label">Evidence</span>
+              <span class="value">Current title is 78 characters: "Best Running Shoes 2025 — Free Shipping | AcmeSports Online Store". Google typically truncates titles beyond 60 characters in SERPs.</span>
+            </div>
+            <div class="finding-field">
+              <span class="label">Impact</span>
+              <span class="value">Truncated titles reduce click-through rates and may fail to communicate the page's primary value proposition in search results.</span>
+            </div>
+            <div class="finding-field">
+              <span class="label">Fix</span>
+              <span class="value">Rewrite title to 50–60 characters. Prioritize primary keyword near the front. Example: "Best Running Shoes 2025 | Free Shipping — AcmeSports"</span>
+            </div>
+          </div>
+        </article>
+      -->
+    </div>
+  </section>
+
+  <!-- Upgrade Prompt -->
+  <section>
+    <h2>Want a Deeper Analysis?</h2>
+    <div class="section-body">
+      <div class="upgrade-box">
+        This was a <strong>seo-audit</strong> — Basic tier. It covers robots.txt, sitemap.xml, canonical, TDK, H1, and heading structure.
+        Upgrade to <strong>seo-audit-full</strong> to unlock E-E-A-T signals, GSC crawl status, Core Web Vitals, PageSpeed, schema validation, and content quality analysis.
+        <br><br>
+        Say: <code>deep audit: {{url}}</code>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="inner">
+    Powered by OpenSource Project <strong><a href="https://github.com/JeffLi1993/seo-audit-skill">seo-audit-skill</a></strong> · Basic SEO Audit Report · {{generated_date}}
+  </div>
+</footer>
+
+</body>
+</html>
