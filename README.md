@@ -1,7 +1,9 @@
 # seo-audit-skill
 
-> Reusable Agent Skills for single-page SEO auditing — Basic and Full tiers.  
-> Works with Claude, Cursor, and OpenClaw.
+**English** · [中文](README.zh.md)
+
+Reusable Agent Skills for single-page SEO auditing — Basic and Full tiers.  
+Works with Claude, Cursor, and OpenClaw.
 
 ---
 
@@ -26,13 +28,14 @@
 | Schema structured data | ✅ | ✅ |
 | i18n / hreflang | ✅ | ✅ |
 | E-E-A-T signals | ❌ | ✅ |
-| GSC crawl status | ❌ | ✅ ¹ |
-| Core Web Vitals | ❌ | ✅ ¹ |
-| PageSpeed Insights | ❌ | ✅ ² |
+| GSC crawl status | ❌ | ✅ |
+| Core Web Vitals | ❌ | ✅ |
+| PageSpeed Insights | ❌ | ✅ |
 | Page content — quantity | ❌ | ✅ |
 | Page content — quality | ❌ | ✅ |
 
-> ¹ Requires GSC Service Account · ² Requires PageSpeed API Key
+> ¹ Requires GSC Service Account
+> ² Requires PageSpeed API Key
 
 ---
 
