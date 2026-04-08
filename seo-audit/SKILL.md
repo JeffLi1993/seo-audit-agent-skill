@@ -115,8 +115,11 @@ keyword : (the --keyword passed)
 Judge:
   1. Does the title semantically cover the keyword's search intent?
   2. Is the title grammatically correct and naturally readable?
-  3. If keyword is not at the start — should it be moved? Will it still read naturally?
-     Best practice: lead with primary keyword for highest SEO weight.
+  3. Keyword position — apply different standards by page type:
+     - Homepage   : Brand + core keyword is correct (e.g. "Acme | AI Workflow Automation")
+                    Do NOT flag brand-first as a problem.
+     - Inner pages: Core keyword should lead (e.g. "AI Workflow Automation for Teams — Acme")
+                    Flag if keyword is buried mid-title without good reason.
 
 IMPORTANT — do NOT flag these as negatives:
   - Years (e.g. "2026") → signal freshness, increase CTR — treat as positive unless
@@ -166,12 +169,26 @@ IMPORTANT — do NOT flag these as negatives:
 Follow these steps in order:
 
 1. **Acknowledge scope** — confirm this is a basic audit; note any missing data
-2. **Run `check-site.py`** — parse the JSON output for robots and sitemap status
-3. **Run `check-page.py`** — parse the JSON output for H1, title, meta description, canonical
-4. **Summarize findings** — each finding must follow the Evidence / Impact / Fix format
-5. **Priority actions** — list the top 3 highest-impact fixes
-6. **Render report** — output using `assets/report-template.html`
-7. **Upgrade prompt** — if issues beyond basic scope are found, suggest `seo-audit-full`
+
+2. **Infer primary keyword** — fetch the page with `fetch-page.py`, then determine the primary keyword:
+   - If the user explicitly provided a keyword → use it directly
+   - If not → read the page H1, title, and first paragraph, then infer the single most likely
+     target keyword phrase (what would a searcher type to find this page?)
+   - State the inferred keyword explicitly before running checks:
+     > "Inferred primary keyword: **open source claude alternatives**"
+
+3. **Run `check-site.py`** — parse the JSON output for robots and sitemap status
+
+4. **Run `check-page.py --keyword "<inferred_keyword>"`** — parse the JSON output for H1, title,
+   meta description, canonical, and URL slug
+
+5. **Summarize findings** — each finding must follow the Evidence / Impact / Fix format
+
+6. **Priority actions** — list the top 3 highest-impact fixes
+
+7. **Render report** — output using `assets/report-template.html`
+
+8. **Upgrade prompt** — if issues beyond basic scope are found, suggest `seo-audit-full`
 
 ---
 
