@@ -17,26 +17,33 @@ Works with Claude, Cursor, and OpenClaw.
 
 ### What's covered
 
-| Check | Basic | Full |
-|---|:---:|:---:|
-| robots.txt | ✅ | ✅ |
-| sitemap.xml | ✅ | ✅ |
-| Canonical strategy | ✅ | ✅ |
-| URL structure | ✅ | ✅ |
-| TDK (title, description, H1) | ✅ | ✅ |
-| H2/H3 heading hierarchy | ✅ | ✅ |
-| URL keyword | ✅ | ✅ |
-| Schema structured data | ✅ | ✅ |
-| i18n / hreflang | ✅ | ✅ |
-| E-E-A-T signals | ❌ | ✅ |
-| GSC crawl status | ❌ | ✅ |
-| Core Web Vitals | ❌ | ✅ |
-| PageSpeed Insights | ❌ | ✅ |
-| Page content — quantity | ❌ | ✅ |
-| Page content — quality | ❌ | ✅ |
+**Site-level checks**
 
-> ¹ Requires GSC Service Account
-> ² Requires PageSpeed API Key
+| Check | Description | Basic | Full |
+|---|---|:---:|:---:|
+| robots.txt | Valid syntax, Sitemap directive, Googlebot not blocked | ✅ | ✅ |
+| sitemap.xml | Valid XML, URL count, referenced in robots.txt | ✅ | ✅ |
+| 404 handling | Non-existent URL returns true 404, not soft 404 or redirect | ✅ | ✅ |
+| URL canonicalization | HTTPS enforced, www unified, trailing slash consistent, canonical matches URL | ✅ | ✅ |
+| i18n / hreflang | Reciprocal symmetry, BCP 47 codes, x-default, URL structure | ✅ | ✅ |
+| Schema (JSON-LD) | Page-type-aware: detect @type, validate required fields, no conflicts | ✅ | ✅ |
+| E-E-A-T infrastructure | About / Contact / Privacy / Terms — exists + reachable from footer/nav | ✅ | ✅ |
+| GSC crawl status | Index coverage, crawl errors, blocked resources | ❌ | ✅ |
+| Core Web Vitals | LCP, CLS, INP via field data | ❌ | ✅ |
+| PageSpeed Insights | Performance score, server response time, render-blocking resources | ❌ | ✅ |
+
+**Page-level checks**
+
+| Check | Description | Basic | Full |
+|---|---|:---:|:---:|
+| URL slug | Lowercase, hyphenated, keyword present, no stop words | ✅ | ✅ |
+| Title tag | Length 50–60 chars, keyword leads (inner pages), brand leads (homepage) | ✅ | ✅ |
+| Meta description | Length 120–160 chars, keyword present, specific and non-generic | ✅ | ✅ |
+| H1 tag | Single H1, keyword present, semantic intent match | ✅ | ✅ |
+| Canonical tag | Self-referencing canonical present and correct | ✅ | ✅ |
+| H2/H3 hierarchy | Heading structure, keyword distribution across headings | ❌ | ✅ |
+| Page content — quantity | Word count, content-to-HTML ratio | ❌ | ✅ |
+| Page content — quality | E-E-A-T signals, readability, specificity vs competitors | ❌ | ✅ |
 
 ---
 

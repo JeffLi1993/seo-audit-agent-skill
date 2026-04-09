@@ -189,18 +189,77 @@ Follow these steps in order:
    - State the inferred keyword explicitly before running checks:
      > "Inferred primary keyword: **open source claude alternatives**"
 
-3. **Run `check-site.py`** — parse the JSON output for robots and sitemap status
+3. **Run `check-site.py`** — parse the JSON output for robots, sitemap, 404 handling, and URL canonicalization
 
-4. **Run `check-page.py --keyword "<inferred_keyword>"`** — parse the JSON output for H1, title,
+   **404 check:** fetch `<origin>/this-page-definitely-does-not-exist-seo-audit-check`
+   - Returns 404 → Pass · Returns 200 (soft 404) → Fail · Returns 301 to homepage → Warn
+
+   **URL Canonicalization checks** (each is a separate sub-check):
+   - **HTTP→HTTPS:** fetch `http://<host>` — must 301 to `https://`. Returns 200 → Fail.
+   - **www consistency:** fetch both `https://www.<host>` and `https://<host>` — one must 301 to the other. Both return 200 → Warn.
+   - **Trailing slash:** compare the URL actually served vs the canonical tag on the page. Mismatch → Warn.
+   - **Canonical match:** canonical tag href must exactly match the final URL after all redirects. Mismatch → Warn.
+
+4. **E-E-A-T infrastructure check** — for each trust page below, check two layers:
+   - **Layer 1 — Exists:** fetch the URL, check HTTP status (200 = exists, 404/redirect = missing)
+   - **Layer 2 — Reachable:** fetch homepage HTML, check if footer or nav contains a link to this page
+
+   | Page | Required |
+   |---|---|
+   | About Us | Yes |
+   | Contact | Yes |
+   | Privacy Policy | Yes |
+   | Terms of Service | Yes |
+   | Media / Partners | No — include only if present |
+
+   Status rules:
+   - Page missing (non-200) → **Fail**
+   - Page exists but not linked in footer/nav → **Warn**
+   - Page exists and linked in footer/nav → **Pass**
+   - Optional page missing → skip, do not include row
+
+5. **Run `check-page.py --keyword "<inferred_keyword>"`** — parse the JSON output for H1, title,
    meta description, canonical, and URL slug
 
-5. **Summarize findings** — each finding must follow the Evidence / Impact / Fix format
+6. **i18n / hreflang check** — only run if the page contains hreflang tags or `<html lang>` suggests multi-language:
+   - **Skip entirely (N/A)** if no hreflang tags found and site appears single-language
+   - If hreflang tags present, check:
+     - **Reciprocal symmetry**: every URL referenced must link back to all other variants — any broken link = Fail
+     - **Language codes**: must be valid BCP 47 (e.g. `zh-CN` not `zh`, `en-US` not `en-us`) — wrong code = Warn
+     - **x-default**: should be present for language-selector or fallback pages — missing = Warn
+     - **html[lang] attribute**: must match the primary hreflang of the page — mismatch = Warn
+     - **URL structure**: recommended pattern — default language (usually `en`) at root with no prefix,
+       other languages under subpaths (`/zh/`, `/es/`).
+       - `/page` (en) + `/zh/page` + `/es/page` → Pass
+       - `/en/page` + `/zh/page` → Warn (en prefix is redundant, wastes crawl depth)
+       - Only flag if the pattern is clearly inconsistent or en is unnecessarily prefixed
 
-6. **Priority actions** — list the top 3 highest-impact fixes
+7. **Schema (JSON-LD) check** — inspect the page's `<script type="application/ld+json">` blocks:
+   - Detect page type first (Homepage / Article / Product / FAQ / HowTo / LocalBusiness / Other)
+   - Map page type → expected `@type` and required fields:
 
-7. **Render report** — output using `assets/report-template.html`
+   | Page Type | Expected @type | Min. required fields |
+   |---|---|---|
+   | Homepage | WebSite + Organization | name, url, logo |
+   | Blog / Article | Article or BlogPosting | headline, datePublished, author, image |
+   | Product | Product | name, image, offers (price, priceCurrency) |
+   | FAQ | FAQPage | mainEntity[].name, acceptedAnswer.text |
+   | How-to | HowTo | name, step[].text |
+   | Local business | LocalBusiness | name, address, telephone |
+   | Generic landing | — | N/A — skip, no widely-supported type |
 
-8. **Upgrade prompt** — if issues beyond basic scope are found, suggest `seo-audit-full`
+   - Pass: correct @type present, all required fields valid, no conflicts
+   - Warn: @type present but missing recommended fields
+   - Fail: expected @type missing entirely
+   - N/A: generic landing page — do not penalize
+
+7. **Summarize findings** — each finding must follow the Evidence / Impact / Fix format
+
+7. **Priority actions** — list the top 3 highest-impact fixes
+
+8. **Render report** — save to `reports/<hostname>-<slug>-audit.html`, then ask user to open
+
+9. **Upgrade prompt** — if issues beyond basic scope are found, suggest `seo-audit-full`
 
 ---
 

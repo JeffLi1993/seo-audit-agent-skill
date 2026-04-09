@@ -354,12 +354,12 @@
   <section>
     <h2>Site Checks</h2>
     <div class="section-body">
+
+      <!-- Crawlability: robots.txt + sitemap.xml -->
       {{site_checks_html}}
       <!--
-        Expected format for site_checks_html:
-        - Pass rows: ONE short phrase. No lists, no background. Badge already says it passed.
-        - Warn / Fail rows: <div class="detail-issue"> with ≤2 bullet points.
-                            <div class="detail-fix"> with the fix. No SEO 101 explanations.
+        Pass rows: ONE short phrase. No divs.
+        Warn / Fail rows: <div class="detail-issue"> ≤2 points + <div class="detail-fix">.
 
         <table class="check-table">
           <thead>
@@ -392,9 +392,188 @@
                 <div class="detail-fix">Generate a valid XML sitemap and submit via Google Search Console.</div>
               </td>
             </tr>
+            <tr>
+              <td>404 Handling</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>Non-existent URL returns 404 — correctly signals missing page to crawlers.</td>
+            </tr>
+            <tr>
+              <td>404 Handling</td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td>
+                <div class="detail-issue">· Non-existent URL returns 200 (soft 404) — Google cannot distinguish missing pages from real content.</div>
+                <div class="detail-fix">Return proper HTTP 404 status for missing pages.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>404 Handling</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· Non-existent URL redirects 301 to homepage — dilutes crawl budget and masks missing pages.</div>
+                <div class="detail-fix">Return 404 directly instead of redirecting to homepage.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>URL Canonicalization</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>HTTPS enforced · www consistent · trailing slash consistent · canonical matches URL.</td>
+            </tr>
+            <tr>
+              <td>URL Canonicalization</td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td>
+                <div class="detail-issue">· http://example.com returns 200 instead of 301 → https — duplicate indexable version.</div>
+                <div class="detail-fix">Force 301 redirect from HTTP to HTTPS at server/CDN level.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>URL Canonicalization</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· www and non-www both return 200 — two indexable versions of the site.</div>
+                <div class="detail-fix">Pick one (preferably non-www unless brand uses www), 301 the other, set canonical accordingly.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>URL Canonicalization</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· Canonical tag points to https://example.com/page but actual URL served is https://example.com/page/ — trailing slash mismatch.</div>
+                <div class="detail-fix">Align canonical tag with the exact URL being served, or 301 one form to the other.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>i18n / hreflang</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>3 hreflang tags (en, zh-TW, ja) · reciprocal links verified · x-default present · html[lang] matches.</td>
+            </tr>
+            <tr>
+              <td>i18n / hreflang</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· hreflang="zh" used — should be "zh-CN" or "zh-TW" (region required for Chinese). · zh-TW version missing reciprocal link back to en page.</div>
+                <div class="detail-fix">Use BCP 47 codes (zh-CN / zh-TW). Ensure every hreflang URL also references all other language variants.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>i18n / hreflang</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· Default language (en) served at /en/page — redundant prefix adds crawl depth. Recommended: / (en) + /zh/ + /es/.</div>
+                <div class="detail-fix">Move en content to root path, keep subpaths for other languages. Update hreflang and canonical accordingly.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>i18n / hreflang</td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td>
+                <div class="detail-issue">· hreflang tags present but reciprocal links broken — /zh page does not reference /en, Google will ignore the entire hreflang set.</div>
+                <div class="detail-fix">All language variants must reference each other. Add missing hreflang entries to /zh page.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>i18n / hreflang</td>
+              <td><span class="status status-na">N/A</span></td>
+              <td>Single-language site — hreflang not applicable.</td>
+            </tr>
+            <tr>
+              <td>Schema (JSON-LD)</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>BlogPosting detected · required fields present (headline, datePublished, author) · no conflicts.</td>
+            </tr>
+            <tr>
+              <td>Schema (JSON-LD)</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· BlogPosting schema present but missing "author.url" and "dateModified" — reduces rich result eligibility.</div>
+                <div class="detail-fix">Add author.url (person/org profile page) and dateModified to the JSON-LD block.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Schema (JSON-LD)</td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td>
+                <div class="detail-issue">· Page type: Article — no JSON-LD found. Missing structured data reduces rich result eligibility.</div>
+                <div class="detail-fix">Add Article or BlogPosting JSON-LD. Minimum fields: headline, datePublished, author, image.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Schema (JSON-LD)</td>
+              <td><span class="status status-na">N/A</span></td>
+              <td>Page type has no widely-supported schema — no action needed.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        Schema check logic (LLM must follow this order):
+        1. Detect page type from URL pattern + H1 + page content:
+           - Homepage        → expect: WebSite + Organization
+           - Blog / Article  → expect: Article or BlogPosting
+           - Product page    → expect: Product (with Offer, AggregateRating)
+           - FAQ page        → expect: FAQPage
+           - How-to page     → expect: HowTo
+           - Local business  → expect: LocalBusiness
+           - Generic landing → N/A (no widely-supported type, skip)
+        2. Check if expected @type is present in page JSON-LD blocks
+        3. Validate required fields per type (see schema.org spec):
+           - Article/BlogPosting : headline, datePublished, author, image
+           - Product             : name, image, offers (price, priceCurrency)
+           - FAQPage             : mainEntity[].name + acceptedAnswer.text
+           - WebSite             : name, url (+ SearchAction for sitelinks search box)
+           - Organization        : name, url, logo
+        4. Flag conflicts: multiple @type blocks claiming different primary types
+        5. Do NOT fail if schema is absent on generic landing pages — use N/A
+      -->
+
+      <!-- E-E-A-T Infrastructure: trust pages existence + reachability -->
+      {{eeat_checks_html}}
+      <!--
+        Two layers per trust page:
+          Layer 1 — Exists     : HTTP 200 = pass, 404/redirect = fail
+          Layer 2 — Reachable  : linked from footer or main nav = pass, not linked = warn
+
+        Required: About Us, Contact, Privacy Policy, Terms of Service
+        Optional bonus: Media/Partners, Pricing (missing = N/A, not penalized)
+
+        <table class="check-table">
+          <thead>
+            <tr><th>E-E-A-T Page</th><th>Exists</th><th>Reachable (footer/nav)</th><th>Detail</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>About Us</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>/about · linked in footer.</td>
+            </tr>
+            <tr>
+              <td>Contact</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· /contact returns 200 but not linked in footer or nav.</div>
+                <div class="detail-fix">Add to footer — hidden trust pages reduce E-E-A-T signals.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Privacy Policy</td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td>
+                <div class="detail-issue">· /privacy returns 404.</div>
+                <div class="detail-fix">Create Privacy Policy page and link it in the footer.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Terms of Service</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>/terms · linked in footer.</td>
+            </tr>
           </tbody>
         </table>
       -->
+
     </div>
   </section>
 

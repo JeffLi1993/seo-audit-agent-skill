@@ -17,26 +17,33 @@
 
 ### 检查项覆盖范围
 
-| 检查项 | Basic | Full |
-|---|:---:|:---:|
-| robots.txt | ✅ | ✅ |
-| sitemap.xml | ✅ | ✅ |
-| Canonical 策略 | ✅ | ✅ |
-| URL 结构 | ✅ | ✅ |
-| TDK（标题、描述、H1） | ✅ | ✅ |
-| H2/H3 标题层级结构 | ✅ | ✅ |
-| URL 关键词 | ✅ | ✅ |
-| Schema 结构化数据 | ✅ | ✅ |
-| i18n / hreflang 多语言 | ✅ | ✅ |
-| E-E-A-T 权威信号 | ❌ | ✅ |
-| GSC 抓取状态 | ❌ | ✅ ¹ |
-| Core Web Vitals | ❌ | ✅ ¹ |
-| PageSpeed Insights | ❌ | ✅ ² |
-| 页面内容 — 定量 | ❌ | ✅ |
-| 页面内容 — 定性 | ❌ | ✅ |
+**站点级检查**
 
-> ¹ 需要 GSC Service Account
-> ² 需要 PageSpeed API Key
+| 检查项 | 说明 | Basic | Full |
+|---|---|:---:|:---:|
+| robots.txt | 语法正确、Sitemap 指令存在、Googlebot 未被屏蔽 | ✅ | ✅ |
+| sitemap.xml | 有效 XML、URL 数量、在 robots.txt 中已引用 | ✅ | ✅ |
+| 404 处理 | 不存在的 URL 返回真实 404，而非软 404 或跳转首页 | ✅ | ✅ |
+| URL 规范化 | HTTPS 强制、www 统一、尾斜杠一致、Canonical 与 URL 匹配 | ✅ | ✅ |
+| i18n / hreflang | 互相引用对称、BCP 47 语言码、x-default、URL 结构建议 | ✅ | ✅ |
+| Schema（JSON-LD） | 按页面类型检测 @type、验证必填字段、无冲突 | ✅ | ✅ |
+| E-E-A-T 基础建设 | About / Contact / Privacy / Terms — 页面存在且 footer/nav 可达 | ✅ | ✅ |
+| GSC 抓取状态 | 索引覆盖、抓取错误、被屏蔽资源 | ❌ | ✅ |
+| Core Web Vitals | LCP、CLS、INP 字段数据 | ❌ | ✅ |
+| PageSpeed Insights | 性能评分、服务器响应时间、阻塞渲染资源 | ❌ | ✅ |
+
+**页面级检查**
+
+| 检查项 | 说明 | Basic | Full |
+|---|---|:---:|:---:|
+| URL Slug | 小写、连字符、含关键词、无停用词 | ✅ | ✅ |
+| Title 标题 | 50–60 字符、内页关键词开头、首页品牌词开头 | ✅ | ✅ |
+| Meta Description | 120–160 字符、含关键词、具体而非泛泛 | ✅ | ✅ |
+| H1 标签 | 唯一 H1、含关键词、语义意图匹配 | ✅ | ✅ |
+| Canonical 标签 | 自引用 Canonical 存在且正确 | ✅ | ✅ |
+| H2/H3 层级结构 | 标题结构、关键词在各级标题中的分布 | ❌ | ✅ |
+| 页面内容 — 定量 | 字数、内容与 HTML 比例 | ❌ | ✅ |
+| 页面内容 — 定性 | E-E-A-T 信号、可读性、与竞品的具体程度对比 | ❌ | ✅ |
 
 ---
 
