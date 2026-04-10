@@ -94,6 +94,11 @@ python scripts/check-page.py https://example.com --keyword "running shoes"
 
 # Optional: fetch raw page HTML for further inspection
 python scripts/fetch-page.py https://example.com --output page.html
+
+# Step 3: JSON-LD schema validation
+python scripts/check-schema.py https://example.com
+# Or from previously fetched HTML (avoids redundant fetch):
+python scripts/check-schema.py --file page.html
 ```
 
 Each script exits with code `0` (all pass/warn) or `1` (any fail/error).
@@ -101,16 +106,26 @@ Each script exits with code `0` (all pass/warn) or `1` (any fail/error).
 **STRICT SCOPE — do not add any check not listed below. No exceptions.**
 
 Allowed site-level checks (in `{{site_checks_html}}`):
-- robots.txt · sitemap.xml · 404 Handling · URL Canonicalization · i18n / hreflang · Schema (JSON-LD)
+- robots.txt · sitemap.xml · 404 Handling · URL Canonicalization · i18n / hreflang
 
 Allowed E-E-A-T checks (in `{{eeat_checks_html}}`):
 - About Us · Contact · Privacy Policy · Terms of Service · Media/Partners (only if present)
 
-Allowed page-level checks (in `{{page_checks_html}}`):
-- URL Slug · Title Tag · Meta Description · H1 Tag · Canonical Tag
+Allowed page-level checks (in `{{page_checks_html}}`), output in this exact order:
+PageSpeed (Mobile) · PageSpeed (Desktop) · URL Slug · Title Tag · Meta Description · H1 Tag · Canonical Tag · Image Alt Text · Word Count · Keyword Placement · Heading Structure · Internal Links · Schema (JSON-LD)
 
-Do NOT add: Image Alt Text, OG tags, Robots Meta, Page Weight, Core Web Vitals,
-heading hierarchy, content quality, or any other check — those belong to `seo-audit-full`.
+  Image Alt Text logic:
+  - Parse <img> tags from static HTML
+  - Pass: all images have non-empty alt (decorative images with alt="" are OK)
+  - Warn: any content image missing alt attribute
+  - Unverified (status-info): 0 images found in static HTML → likely JS-rendered, cannot verify
+
+⛔ HARD RULE — Output ONLY the check rows defined in report-template.html.
+If a check is not in the allowed lists above, do NOT output it — not even if you find issues.
+No exceptions. No "bonus" checks. No improvisation.
+The template is the single source of truth. Treat it as a strict whitelist.
+
+Still BANNED (belong to seo-audit-full): OG tags · Twitter Card · Social tags · Page Weight · Core Web Vitals · Robots Meta
 
 **How to use the JSON output:**
 - Map each field's `status` → `pass` / `warn` / `fail` / `error` directly to the report check table
@@ -235,7 +250,20 @@ Follow these steps in order:
    - Page exists and linked in footer/nav → **Pass**
    - Optional page missing → skip, do not include row
 
-5. **Run `check-page.py --keyword "<inferred_keyword>"`** — parse the JSON output for H1, title,
+5. **Run `check-pagespeed.py <url>`** — fetch PageSpeed Insights scores for mobile + desktop
+
+   Thresholds (different per category and strategy):
+
+   | Category | Desktop Pass | Mobile Pass | Warn | Fail |
+   |---|---|---|---|---|
+   | SEO | 100 | 100 | 90–99 | < 90 |
+   | Best Practices | 100 | 100 | 90–99 | < 90 |
+   | Accessibility | 100 | 100 | 90–99 | < 90 |
+   | Performance | ≥ 90 | ≥ 80 | Desktop 80–89 / Mobile 70–79 | Desktop < 80 / Mobile < 70 |
+
+   Output two rows in `{{page_checks_html}}`: PageSpeed (Mobile) and PageSpeed (Desktop)
+
+6. **Run `check-page.py --keyword "<inferred_keyword>"`** — parse the JSON output for H1, title,
    meta description, canonical, and URL slug
 
 6. **i18n / hreflang check** — only run if the page contains hreflang tags or `<html lang>` suggests multi-language:
@@ -251,9 +279,18 @@ Follow these steps in order:
        - `/en/page` + `/zh/page` → Warn (en prefix is redundant, wastes crawl depth)
        - Only flag if the pattern is clearly inconsistent or en is unnecessarily prefixed
 
-7. **Schema (JSON-LD) check** — inspect the page's `<script type="application/ld+json">` blocks:
-   - Detect page type first (Homepage / Article / Product / FAQ / HowTo / LocalBusiness / Other)
-   - Map page type → expected `@type` and required fields:
+7. **Run `check-schema.py`** — parse the JSON output for schema types and field validation
+
+   ```bash
+   python scripts/check-schema.py https://example.com
+   # Or from previously fetched HTML:
+   python scripts/check-schema.py --file page.html
+   ```
+
+   The script extracts JSON-LD blocks, validates `@type` and required fields per Schema.org spec.
+   `llm_review_required: true` is always set — confirm `inferred_page_type` matches actual page content.
+
+   Page type → expected `@type` reference:
 
    | Page Type | Expected @type | Min. required fields |
    |---|---|---|
@@ -340,3 +377,4 @@ Include this at the end of every basic audit report:
 - Site-level check script: [scripts/check-site.py](scripts/check-site.py)
 - Page-level check script: [scripts/check-page.py](scripts/check-page.py)
 - Raw page fetcher: [scripts/fetch-page.py](scripts/fetch-page.py)
+- Schema validation script: [scripts/check-schema.py](scripts/check-schema.py)

@@ -73,6 +73,14 @@ _DEFAULT_HEADERS = {
     "Connection": "keep-alive",
 }
 
+# 关键词过滤用停用词表（替代长度阈值，避免误杀 SEO/AI/CRM 等短缩写词）
+_STOP_WORDS = frozenset({
+    "a", "an", "the", "and", "or", "but", "not", "no",
+    "in", "on", "at", "to", "for", "of", "with", "by", "from", "as",
+    "is", "are", "was", "were", "be",
+    "it", "its", "this", "that",
+})
+
 
 def _fetch(url: str, timeout: int) -> tuple[Optional[int], Optional[str], str, list[dict], Optional[str]]:
     """
@@ -257,7 +265,7 @@ def _check_h1(h1_values: list[str], keyword: Optional[str] = None) -> dict:
     if keyword:
         h1_lower = h1_text.lower()
         kw_lower = keyword.lower().strip()
-        kw_words = [w for w in kw_lower.split() if len(w) > 3]
+        kw_words = [w for w in kw_lower.split() if w not in _STOP_WORDS]
         full_match = kw_lower in h1_lower
         partial_match = not full_match and any(w in h1_lower for w in kw_words)
 
@@ -362,7 +370,7 @@ def _check_title(title: Optional[str], keyword: Optional[str] = None) -> dict:
     if keyword:
         title_lower = title.lower()
         kw_lower = keyword.lower().strip()
-        kw_words = [w for w in kw_lower.split() if len(w) > 3]
+        kw_words = [w for w in kw_lower.split() if w not in _STOP_WORDS]
 
         full_match = kw_lower in title_lower
         partial_match = not full_match and any(w in title_lower for w in kw_words)
@@ -483,7 +491,7 @@ def _check_meta_description(meta_desc: Optional[str], keyword: Optional[str] = N
     if keyword:
         desc_lower = meta_desc.lower()
         kw_lower = keyword.lower().strip()
-        kw_words = [w for w in kw_lower.split() if len(w) > 3]
+        kw_words = [w for w in kw_lower.split() if w not in _STOP_WORDS]
 
         full_match = kw_lower in desc_lower
         partial_match = not full_match and any(w in desc_lower for w in kw_words)
@@ -635,11 +643,11 @@ def _check_url_slug(url: str, keyword: Optional[str] = None) -> dict:
         )
 
     # Stop words
-    _STOP_WORDS = {"a", "the", "and", "of", "or", "in", "on", "at", "to", "for", "with", "by", "from"}
+    slug_stop_words = {"a", "the", "and", "of", "or", "in", "on", "at", "to", "for", "with", "by", "from"}
     all_slug_words: list[str] = []
     for seg in segments:
         all_slug_words.extend(seg.split("-"))
-    found_stop = [w for w in all_slug_words if w in _STOP_WORDS]
+    found_stop = [w for w in all_slug_words if w in slug_stop_words]
     if found_stop:
         issues.append(
             f"Stop words in slug: {found_stop}. "
@@ -670,7 +678,7 @@ def _check_url_slug(url: str, keyword: Optional[str] = None) -> dict:
     llm_review_required = False
     if keyword:
         kw_lower = keyword.lower().strip()
-        kw_words = [w for w in kw_lower.split() if len(w) > 3]
+        kw_words = [w for w in kw_lower.split() if w not in _STOP_WORDS]
         full_match = kw_lower.replace(" ", "-") in slug_lower or kw_lower in slug_lower
         partial_match = not full_match and any(w in slug_lower for w in kw_words)
 

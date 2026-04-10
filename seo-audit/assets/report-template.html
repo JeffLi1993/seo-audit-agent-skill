@@ -261,14 +261,16 @@
     .subsection-label {
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.07em;
       text-transform: uppercase;
-      color: #888;
-      padding: 18px 0 8px;
-      margin-bottom: 4px;
-      border-bottom: 1px solid #ebebeb;
+      color: #0f62fe;
+      background: #f0f5ff;
+      border-left: 3px solid #0f62fe;
+      padding: 6px 10px;
+      margin: 20px 0 12px;
+      border-radius: 0 3px 3px 0;
     }
-    .subsection-label:first-child { padding-top: 0; }
+    .subsection-label:first-child { margin-top: 0; }
 
     /* ── Limitations ── */
 
@@ -491,53 +493,8 @@
               <td><span class="status status-na">N/A</span></td>
               <td>Single-language site — hreflang not applicable.</td>
             </tr>
-            <tr>
-              <td>Schema (JSON-LD)</td>
-              <td><span class="status status-pass">Pass</span></td>
-              <td>BlogPosting detected · required fields present (headline, datePublished, author) · no conflicts.</td>
-            </tr>
-            <tr>
-              <td>Schema (JSON-LD)</td>
-              <td><span class="status status-warn">Warning</span></td>
-              <td>
-                <div class="detail-issue">· BlogPosting schema present but missing "author.url" and "dateModified" — reduces rich result eligibility.</div>
-                <div class="detail-fix">Add author.url (person/org profile page) and dateModified to the JSON-LD block.</div>
-              </td>
-            </tr>
-            <tr>
-              <td>Schema (JSON-LD)</td>
-              <td><span class="status status-fail">Fail</span></td>
-              <td>
-                <div class="detail-issue">· Page type: Article — no JSON-LD found. Missing structured data reduces rich result eligibility.</div>
-                <div class="detail-fix">Add Article or BlogPosting JSON-LD. Minimum fields: headline, datePublished, author, image.</div>
-              </td>
-            </tr>
-            <tr>
-              <td>Schema (JSON-LD)</td>
-              <td><span class="status status-na">N/A</span></td>
-              <td>Page type has no widely-supported schema — no action needed.</td>
-            </tr>
           </tbody>
         </table>
-
-        Schema check logic (LLM must follow this order):
-        1. Detect page type from URL pattern + H1 + page content:
-           - Homepage        → expect: WebSite + Organization
-           - Blog / Article  → expect: Article or BlogPosting
-           - Product page    → expect: Product (with Offer, AggregateRating)
-           - FAQ page        → expect: FAQPage
-           - How-to page     → expect: HowTo
-           - Local business  → expect: LocalBusiness
-           - Generic landing → N/A (no widely-supported type, skip)
-        2. Check if expected @type is present in page JSON-LD blocks
-        3. Validate required fields per type (see schema.org spec):
-           - Article/BlogPosting : headline, datePublished, author, image
-           - Product             : name, image, offers (price, priceCurrency)
-           - FAQPage             : mainEntity[].name + acceptedAnswer.text
-           - WebSite             : name, url (+ SearchAction for sitelinks search box)
-           - Organization        : name, url, logo
-        4. Flag conflicts: multiple @type blocks claiming different primary types
-        5. Do NOT fail if schema is absent on generic landing pages — use N/A
       -->
 
       <!-- E-E-A-T Infrastructure: trust pages existence + reachability -->
@@ -611,6 +568,32 @@
           </thead>
           <tbody>
             <tr>
+              <td>PageSpeed (Mobile)</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>Performance 96 · Accessibility 98 · Best Practices 100 · SEO 100</td>
+            </tr>
+            <tr>
+              <td>PageSpeed (Mobile)</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· Performance 87 — below 90. · Accessibility 92.</div>
+                <div class="detail-fix">Use Lighthouse report for detailed improvement opportunities.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>PageSpeed (Mobile)</td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td>
+                <div class="detail-issue">· Performance 54 · SEO 83 — both below 90.</div>
+                <div class="detail-fix">Run full Lighthouse audit. Priority: eliminate render-blocking resources, fix SEO issues.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>PageSpeed (Desktop)</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>Performance 99 · Accessibility 98 · Best Practices 100 · SEO 100</td>
+            </tr>
+            <tr>
               <td>URL Slug</td>
               <td><span class="status status-pass">Pass</span></td>
               <td>/blog/best-running-shoes · lowercase, hyphenated, keyword present.</td>
@@ -672,8 +655,149 @@
               <td><span class="status status-pass">Pass</span></td>
               <td>Self-referencing canonical present.</td>
             </tr>
+            <tr>
+              <td>Image Alt Text</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>12 images found · all have alt attributes · no empty alt on content images.</td>
+            </tr>
+            <tr>
+              <td>Image Alt Text</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· 3 of 12 images missing alt attribute.</div>
+                <div class="detail-fix">Add descriptive alt text to all content images. Decorative images use alt="".</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Image Alt Text</td>
+              <td><span class="status status-info">Unverified</span></td>
+              <td>0 images in static HTML — likely JavaScript-rendered. Cannot verify alt text from static analysis. Check via browser DevTools or GSC URL Inspection.</td>
+            </tr>
+            <tr>
+              <td>Word Count</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>1,420 words.</td>
+            </tr>
+            <tr>
+              <td>Word Count</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· 320 words — thin (recommended ≥ 500).</div>
+                <div class="detail-fix">Expand to 500+ words with substantive content.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Word Count</td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td>
+                <div class="detail-issue">· 43 words — below 100-word minimum, not meaningful for indexing.</div>
+                <div class="detail-fix">Expand content significantly.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Keyword Placement</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>Keyword appears at word 87 — within first 100 words.</td>
+            </tr>
+            <tr>
+              <td>Keyword Placement</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· Keyword first appears at word 210 — should be within first 100 words.</div>
+                <div class="detail-fix">Add keyword or natural variant to the opening paragraph.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Heading Structure</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>6 H2s · keyword in 3 H2s · avg 2 H3s/H2.</td>
+            </tr>
+            <tr>
+              <td>Heading Structure</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· 2 H2s — sparse (recommended 5–7). · Keyword not in any H2.</div>
+                <div class="detail-fix">Expand to 5–7 H2 sections. Include keyword or natural variant in at least 1 H2.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Internal Links</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>8 internal links.</td>
+            </tr>
+            <tr>
+              <td>Internal Links</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· 1 internal link — too few for link equity distribution.</div>
+                <div class="detail-fix">Add 2+ internal links to related pages.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Schema (JSON-LD)</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>BlogPosting detected · required fields present (headline, datePublished, author) · no conflicts.</td>
+            </tr>
+            <tr>
+              <td>Schema (JSON-LD)</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· BlogPosting present but missing "author.url" and "dateModified" — reduces rich result eligibility.</div>
+                <div class="detail-fix">Add author.url (person/org profile page) and dateModified to the JSON-LD block.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Schema (JSON-LD)</td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td>
+                <div class="detail-issue">· Article page — no JSON-LD found.</div>
+                <div class="detail-fix">Add BlogPosting JSON-LD: headline, datePublished, author, image.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Schema (JSON-LD)</td>
+              <td><span class="status status-na">N/A</span></td>
+              <td>Generic landing page — no widely-supported schema type, skip.</td>
+            </tr>
           </tbody>
         </table>
+
+        On-page content check logic (LLM reads page HTML for all 4 checks):
+
+        Word Count — visible body text only (exclude nav/footer/boilerplate):
+          < 100      → Fail · 100–499 → Warn · ≥ 500 → Pass
+
+        Keyword Placement — primary keyword or close variant in first 100 body words:
+          Present → Pass · Absent → Warn
+
+        Heading Structure — three sub-rules, report as separate bullets if any fail:
+          H2 count  : 0 → Warn · 1–4 → Warn · 5–7 → Pass · ≥ 8 → Warn
+          H3/H2     : 0 → OK · 1–3 → Pass · ≥ 4 → Warn (split this H2)
+          Keyword in H2 : ≥ 1 H2 contains keyword/variant → Pass · 0 → Warn
+          Pass summary: "Y H2s · keyword in N H2s · avg Z H3s/H2"
+
+        Internal Links — <a href> pointing to same-origin URLs (exclude nav/footer):
+          < 2 → Warn · 2–20 → Pass · > 20 → Warn
+
+        Schema (JSON-LD) — output AFTER the above 4 checks:
+
+        Schema check logic (LLM must follow this order):
+        1. Detect page type from URL pattern + H1 + page content:
+           - Homepage        → expect: WebSite + Organization
+           - Blog / Article  → expect: Article or BlogPosting
+           - Product page    → expect: Product (with Offer, AggregateRating)
+           - FAQ page        → expect: FAQPage
+           - How-to page     → expect: HowTo
+           - Local business  → expect: LocalBusiness
+           - Generic landing → N/A (skip, do not penalize)
+        2. Check if expected @type is present in page JSON-LD blocks
+        3. Validate required fields per type:
+           - Article/BlogPosting : headline, datePublished, author, image
+           - Product             : name, image, offers (price, priceCurrency)
+           - FAQPage             : mainEntity[].name + acceptedAnswer.text
+           - WebSite             : name, url
+           - Organization        : name, url, logo
+        4. Flag conflicts: multiple @type blocks claiming different primary types
       -->
     </div>
   </section>
