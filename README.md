@@ -25,13 +25,9 @@ audit this page: https://openclaw.ai
 → ✅ Report saved → reports/openclaw-ai-audit.html
 ```
 
-**Example — colaos.ai** · `reports/colaos-ai-audit.html`
-
-| # | Section | Preview |
-|---|---------|---------|
-| 1 | **Audit Summary** | <img src="assets/0-0.png" alt="Audit Summary" width="720" /> |
-| 2 | **Site Checks** | <img src="assets/0-1.png" alt="Site Checks" width="720" /> |
-| 3 | **Page Checks & insights** | <img src="assets/0-2.png" alt="Page Checks" width="720" /> |
+| Website | Audit Summary | Site Checks | Page Checks & insights |
+|---|---|---|---|
+| colaos.ai <br><small><code>reports/colaos-ai-audit.html</code></small> | <img src="assets/0-0.png" alt="Audit Summary" width="240" /> | <img src="assets/0-1.png" alt="Site Checks" width="240" /> | <img src="assets/0-2.png" alt="Page Checks and insights" width="240" /> |
 
 ---
 

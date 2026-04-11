@@ -25,13 +25,9 @@ audit this page: https://openclaw.ai
 → ✅ Report saved → reports/openclaw-ai-audit.html
 ```
 
-**示例 — colaos.ai**（报告：`reports/colaos-ai-audit.html`）
-
-| # | 对应区块 | 效果图 |
-|---|----------|--------|
-| 1 | **Audit Summary** | <img src="assets/0-0.png" alt="审计摘要" width="720" /> |
-| 2 | **Site Checks** | <img src="assets/0-1.png" alt="站点检查" width="720" /> |
-| 3 | **Page Checks & 洞察** | <img src="assets/0-2.png" alt="页面检查" width="720" /> |
+| 站点 | Audit Summary | Site Checks | Page Checks & insights |
+|---|---|---|---|
+| colaos.ai <br><small><code>reports/colaos-ai-audit.html</code></small> | <img src="assets/0-0.png" alt="审计摘要" width="240" /> | <img src="assets/0-1.png" alt="站点检查" width="240" /> | <img src="assets/0-2.png" alt="页面检查与洞察" width="240" /> |
 
 ---
 
