@@ -1,114 +1,105 @@
 # seo-audit-full — Reference Guide
 
-Detailed field definitions, audit modules, scope boundaries, trigger keywords, and agent instructions for the `seo-audit-full` advanced SEO audit skill.
+Detailed field definitions, audit modules, scope boundaries, and agent instructions
+for the `seo-audit-full` advanced SEO audit skill.
 
 ---
 
 ## Positioning
 
-`seo-audit-full` is the **advanced, comprehensive tier** of SEO auditing in the OpenClaw / Claude skill ecosystem. It is designed for users who need a thorough, evidence-based audit that goes well beyond surface-level checks.
+`seo-audit-full` is the **advanced tier** — it runs ALL checks from `seo-audit` (basic)
+first, then adds extra modules. Both target a single page.
 
 **Compared to `seo-audit` (basic):**
 
-| Dimension | seo-audit (basic) | seo-audit-full (advanced) |
+| Dimension | seo-audit (Basic) | seo-audit-full (Advanced) |
 |-----------|------------------|--------------------------|
-| Scope | Core signals only | Full technical + on-page |
-| Technical SEO | Sitemap, robots | + Redirects, canonical chains, HTTPS, hreflang |
-| On-page | H1, title, meta desc | + H2–H3 structure, keyword density, content quality |
-| Structured data | Not included | Schema markup detection and validation |
-| Content quality | Not included | E-E-A-T signals, readability, topic depth |
-| Performance | Not included | CWV flags (if data available) |
-| Internal linking | Not included | Anchor text quality, orphan page signals |
-| Report depth | Summary | Full findings with priority matrix |
+| Scope | Core signals | Basic + extra modules |
+| Technical SEO | robots.txt, sitemap, 404, canonical, HTTPS, hreflang | ★ Same (inherited) |
+| On-page | H1, title, meta desc, canonical, slug, images, word count | ★ Same (inherited) |
+| Schema | JSON-LD extraction + field validation | ★ Same (inherited) |
+| PageSpeed | PSI API (mobile + desktop) | ★ Same (inherited) |
+| E-E-A-T pages | Trust page existence + reachability | ★ Same (inherited) |
+| Social Tags | Not included (banned) | ★ OG Tags + Twitter Card |
+| E-E-A-T Content | Not included | ★ Experience/Expertise/Authority/Trust scoring (LLM) |
+| Duplicate Content | Not included | ★ Near-duplicate signals (LLM) |
+| Anchor Text | Not included | ★ Internal link anchor text quality (LLM) |
+| Scripts | 5 Python scripts | 5 inherited + 1 own (`check-social.py`) |
+| Report depth | Summary + Priority Actions + Insights | Full findings with effort/impact priority matrix |
 
 ---
 
 ## Audit Scope — Full Report Modules
 
-### Module 1: Technical SEO
+### Module 1: Technical SEO (inherited from Basic scripts)
 
-| Check | What to Verify |
+| Check | Script | Notes |
+|-------|--------|-------|
+| robots.txt | `check-site.py` | RFC 9309 group parsing, Allow directive support |
+| sitemap.xml | `check-site.py` | Tracks robots.txt Sitemap directives |
+| 404 Handling | `check-site.py` | Soft 404 detection |
+| URL Canonicalization | `check-site.py` | HTTP→HTTPS, www, trailing slash, canonical match |
+| i18n / hreflang | LLM check on HTML | BCP 47 codes, reciprocal symmetry, x-default |
+
+### Module 2: On-Page SEO (inherited from Basic scripts)
+
+| Check | Script | Notes |
+|-------|--------|-------|
+| Title Tag | `check-page.py` | Length, keyword presence/position |
+| Meta Description | `check-page.py` | Length, keyword, quality |
+| H1 Tag | `check-page.py` | Uniqueness, keyword match |
+| URL Slug | `check-page.py` | Keyword presence, readability |
+| Canonical Tag | `check-page.py` | Self-referencing validation |
+| Image Alt Text | LLM check on HTML | Parse `<img>` tags from static HTML |
+| Word Count | LLM check on HTML | < 100 fail, 100–499 warn, ≥ 500 pass |
+| Keyword Placement | LLM check on HTML | Present in first 100 body words |
+| Heading Structure | LLM check on HTML | H2 count, keyword in H2, H3/H2 ratio |
+| Internal Links | LLM check on HTML | Same-origin `<a>` count (excl. nav/footer) |
+| PageSpeed (Mobile) | `check-pagespeed.py` | PSI API scores |
+| PageSpeed (Desktop) | `check-pagespeed.py` | PSI API scores |
+
+### Module 3: Structured Data (inherited from Basic scripts)
+
+| Check | Script | Notes |
+|-------|--------|-------|
+| Schema (JSON-LD) | `check-schema.py` | @type detection, required/recommended field validation |
+
+### Module 4: Social Tags (★ Full-only — scripted)
+
+| Check | Script | Notes |
+|-------|--------|-------|
+| OG Tags | `check-social.py` | og:title, og:description, og:image, og:type, og:url |
+| Twitter Card | `check-social.py` | twitter:card type, title/desc/image with OG fallback |
+
+**OG Tags status logic:**
+- Pass: og:title + og:description + og:image + og:type all present and valid
+- Warn: og:url missing or og:url/canonical mismatch, or length exceeds limits
+- Fail: og:title or og:image completely missing
+
+**Twitter Card status logic:**
+- Pass: twitter:card present with valid type, title/desc/image present or OG fallback
+- Warn: missing optional fields with no OG fallback
+- Fail: twitter:card tag completely missing
+
+### Module 5: E-E-A-T Trust Pages (inherited from Basic workflow)
+
+| Page | Required |
+|------|----------|
+| About Us | Yes |
+| Contact | Yes |
+| Privacy Policy | Yes |
+| Terms of Service | Yes |
+| Media / Partners | No — include only if present |
+
+### Module 6: LLM-Only Advanced Checks (★ Full-only)
+
+These checks require semantic judgment and cannot be scripted:
+
+| Check | What to assess |
 |-------|---------------|
-| HTTPS | Is the page served over HTTPS? No mixed-content warnings? |
-| Canonical tag | Is `<link rel="canonical">` present? Correct URL? No chain? |
-| Redirect chain | Does the URL resolve with no unnecessary 301/302 chain? |
-| robots.txt | Is `Disallow` blocking the target page or key resources? |
-| sitemap.xml | Is the page included in the sitemap? Correct priority/changefreq? |
-| Hreflang | If multilingual, are hreflang tags correct and reciprocal? |
-| Noindex signal | Is `noindex` accidentally present in meta robots or X-Robots-Tag? |
-| Pagination | Are `rel="next"` / `rel="prev"` used correctly (if applicable)? |
-
-### Module 2: On-Page SEO
-
-| Check | What to Verify |
-|-------|---------------|
-| Title tag | Present? Length 50–60 chars? Primary keyword near front? |
-| Meta description | Present? Length 120–160 chars? Compelling with CTA? |
-| H1 | Single H1? Matches page intent? Contains primary keyword? |
-| H2–H3 structure | Logical hierarchy? Keywords in subheadings? |
-| Primary keyword usage | Keyword in title, H1, first 100 words, meta desc? |
-| Content length | Is content depth appropriate for the query type? |
-| Thin content | Is the page too shallow to rank competitively? |
-| Duplicate content signals | Is there near-duplicate content on other pages? |
-
-### Module 3: Structured Data
-
-| Check | What to Verify |
-|-------|---------------|
-| Schema presence | Any `application/ld+json` or microdata present? |
-| Schema type | Appropriate type for the page (Article, Product, FAQ, LocalBusiness, etc.)? |
-| Required fields | Are all required fields for the schema type populated? |
-| Validation warnings | Any obvious errors (missing `@context`, wrong `@type`)? |
-| Rich result eligibility | Does the schema qualify for rich results based on Google's criteria? |
-
-### Module 4: Content Quality (E-E-A-T Signals)
-
-| Signal | What to Look For |
-|--------|-----------------|
-| Experience | First-hand experience signals in the content? |
-| Expertise | Author credentials, citations, depth of explanation? |
-| Authoritativeness | Site reputation signals, external links, brand mentions? |
-| Trustworthiness | Accurate claims, clear authorship, privacy/contact info? |
-| Readability | Sentence complexity, paragraph length, use of lists/headers |
-
-### Module 5: Performance Signals
-
-| Check | Note |
-|-------|------|
-| Core Web Vitals (LCP) | If data available — flag if LCP > 2.5s |
-| Core Web Vitals (INP) | If data available — flag if INP > 200ms |
-| Core Web Vitals (CLS) | If data available — flag if CLS > 0.1 |
-| Image optimization | Oversized images? Missing `width`/`height`? No `loading="lazy"`? |
-| Render-blocking resources | CSS/JS in `<head>` without `async`/`defer`? |
-
-> If CWV data is not available, clearly state: `[UNVERIFIED] Core Web Vitals data not available for this audit.`
-
-### Module 6: Internal Linking
-
-| Check | What to Verify |
-|-------|---------------|
-| Inbound links | Does the page receive internal links from other site pages? |
-| Anchor text quality | Are inbound anchor texts descriptive and keyword-relevant? |
-| Orphan page risk | Does the page appear isolated from site architecture? |
-| Outbound internal links | Does the page link to relevant related pages? |
-
-> Internal linking analysis requires crawl data or site map access. If unavailable, flag as `[UNVERIFIED]`.
-
----
-
-## Trigger Keywords
-
-This skill should activate when the user says:
-
-- "deep audit"
-- "advanced audit"
-- "technical SEO audit"
-- "full SEO audit" / "full report" / "key report"
-- "comprehensive SEO review"
-- "complete analysis"
-- "audit everything"
-- "I need more than a basic check"
-- After `seo-audit` runs: "what else?", "go deeper", "full version"
+| E-E-A-T Content Quality | Experience signals, expertise depth, authority indicators, trust markers |
+| Duplicate Content Signals | Near-duplicate paragraphs, boilerplate ratio, unique content percentage |
+| Anchor Text Quality | Are internal link anchors descriptive and keyword-relevant? |
 
 ---
 
@@ -116,42 +107,24 @@ This skill should activate when the user says:
 
 ### General quality rules
 
-1. **Concrete over abstract.** "The title is 82 characters, which Google typically truncates at ~60" is better than "the title is too long."
-2. **Proportional depth.** Spend more time on high-impact issues. Do not write equal-length findings for a missing meta description and a missing canonical.
-3. **No false certainty.** If you cannot access source code or CWV data, do not invent scores. Mark assumptions with `[ASSUMPTION]` or `[UNVERIFIED]`.
-4. **Priority matrix.** In the Priority Actions section, include an effort/impact estimate: `Low Effort / High Impact`, `Medium Effort / High Impact`, etc.
+1. **Concrete over abstract.** "og:title is 112 chars, exceeding the 95-char limit" > "og:title is too long."
+2. **Proportional depth.** More detail for high-impact issues.
+3. **No false certainty.** Mark assumptions with `[ASSUMPTION]` or `[UNVERIFIED]`.
+4. **Priority matrix.** Include effort/impact tags: `Low Effort / High Impact`, etc.
 
 ### Handling missing data
 
-If source HTML is unavailable:
-> "On-page and technical checks are based on rendered content and publicly observable HTTP headers only. JavaScript-rendered content, server-side logic, and HTTP response headers beyond what is publicly visible are not included in this analysis."
+If API keys are not available:
+> "GSC data is not available — search performance analysis is not included in this audit.
+> To enable: set `GSC_API_KEY` environment variable."
 
-If GSC data is unavailable:
-> "Keyword ranking, CTR, and impression data from Google Search Console are not available. Search performance analysis is not included in this audit."
-
-If CWV / performance data is unavailable:
-> "Core Web Vitals metrics are not available. Performance assessment cannot be included. Consider running a Lighthouse or PageSpeed Insights report separately."
-
-### Scope of this demo implementation
-
-The current version of `seo-audit-full` provides:
-- Structured audit modules and finding templates (above)
-- HTML report template for structured output
-- Clear guidance for agents on what to check and how to report
-
-**Not yet automated:**
-- Live crawl execution
-- Lighthouse / CWV integration
-- GSC API data pull
-- Structured data validator API calls
-
-These can be added as scripts in the `scripts/` directory in future versions.
+If CWV data is limited:
+> "Core Web Vitals assessment is based on PageSpeed Insights API data only.
+> Field data from CrUX may differ from lab measurements."
 
 ---
 
 ## Finding Format Reminder
-
-Every important finding must follow:
 
 ```
 **Finding: [Title]**
@@ -160,18 +133,19 @@ Every important finding must follow:
 - **Fix:** [Actionable recommendation with example]
 ```
 
-For Priority Actions, add effort/impact tags:
-
+For Priority Actions:
 ```
-1. [High Impact / Low Effort] Fix the canonical tag — it currently points to a non-HTTPS variant.
-2. [High Impact / Medium Effort] Add FAQ schema to capture rich result eligibility.
-3. [Medium Impact / Low Effort] Expand meta description from 95 to 140 characters.
+1. [High Impact / Low Effort] Fix og:image — social shares currently show no preview.
 ```
 
 ---
 
 ## Limitations Disclosure
 
-Always include a limitations section. Use language like:
+Always include a limitations section:
 
-> This audit is based on publicly accessible page signals at the time of analysis. Depending on data availability, the following may not be included: source code review, JavaScript rendering analysis, Core Web Vitals measurements, Google Search Console data, crawl log analysis, or competitive benchmarking. All findings marked [UNVERIFIED] or [ASSUMPTION] indicate areas where additional data collection is recommended before acting on the finding.
+> This audit is based on publicly accessible page signals at the time of analysis.
+> Depending on data availability, the following may not be included: source code review,
+> JavaScript rendering analysis, Core Web Vitals field measurements, Google Search Console
+> data, crawl log analysis, or competitive benchmarking. All findings marked [UNVERIFIED]
+> or [ASSUMPTION] indicate areas where additional data collection is recommended.

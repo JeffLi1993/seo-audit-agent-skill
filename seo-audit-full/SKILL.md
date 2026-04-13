@@ -2,20 +2,21 @@
 name: seo-audit-full
 description: >-
   An advanced SEO agent skill for deep, comprehensive single-page SEO audits.
-  Performs full technical SEO analysis, on-page SEO review, structured data
-  validation, content quality assessment, and canonical/crawlability checks.
-  Outputs an advanced full SEO audit report. Use when the user says "deep
-  audit", "advanced audit", "technical SEO audit", "full SEO audit", "full
-  report", "key report", "comprehensive SEO review", or explicitly asks for
-  more than a basic check. Powered by OpenClaw and Claude.
+  Includes ALL basic audit checks plus additional modules: Social Tags (OG +
+  Twitter Card), and more. Outputs an advanced full SEO audit report.
+  Use when the user says "deep audit", "advanced audit", "technical SEO audit",
+  "full SEO audit", "full report", "key report", "comprehensive SEO review",
+  or explicitly asks for more than a basic check. Powered by OpenClaw and Claude.
 metadata:
   author: Jeff
-  version: "1.0"
+  version: "2.0"
 ---
 
 # seo-audit-full — Advanced Full SEO Audit
 
-A comprehensive SEO agent skill for deep single-page analysis. Goes beyond surface-level checks to cover technical SEO signals, on-page content quality, structured data, crawlability, and performance indicators. Powered by OpenClaw. Designed for users who need a thorough, evidence-backed report.
+Full = Basic + Extra Checks. This skill runs **all** checks from `seo-audit` (basic) first,
+then adds advanced modules on top. Both are single-page audits — Full simply covers more
+dimensions and provides deeper analysis.
 
 ---
 
@@ -23,16 +24,10 @@ A comprehensive SEO agent skill for deep single-page analysis. Goes beyond surfa
 
 Use `seo-audit-full` when the user says any of the following:
 
-- "deep audit"
-- "advanced audit"
-- "technical SEO audit"
+- "deep audit" / "advanced audit" / "technical SEO audit"
 - "full SEO audit" / "full report" / "key report"
-- "comprehensive SEO review"
-- "what's really wrong with my SEO"
-- "I need a complete analysis"
-- "audit everything"
-
-Also use this skill when `seo-audit` (basic) was run first and the user asks: "what else should I check?" or "can you go deeper?"
+- "comprehensive SEO review" / "audit everything"
+- After `seo-audit` (basic) runs: "what else?", "go deeper", "full version"
 
 ---
 
@@ -41,66 +36,216 @@ Also use this skill when `seo-audit` (basic) was run first and the user asks: "w
 | Input | Required | Notes |
 |-------|----------|-------|
 | Page URL | Yes | The primary page to audit |
-| Raw HTML / source code | Recommended | Enables accurate on-page and technical checks |
 | Primary keyword | Recommended | Improves content relevance scoring |
-| Google Search Console data | Optional | Enables impression/CTR/ranking analysis |
-| Performance data (CWV) | Optional | Enables Core Web Vitals assessment |
-| Crawl data / sitemap | Optional | Enables site architecture analysis |
+| Raw HTML / source code | Optional | Enables more accurate on-page analysis |
+| GSC API credentials | Optional | Enables search performance analysis (future) |
 
-If source code or additional data is unavailable, clearly state:
+---
 
-> **Limitation:** This audit is based on visible page content and publicly available signals only. Source code, GSC data, Core Web Vitals measurements, and crawl logs are not available. Findings are based on observable evidence and reasonable assumptions; these are marked accordingly.
+## Architecture: Full = Basic + Extra
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  seo-audit-full Workflow                                    │
+│                                                             │
+│  Phase 1: Run ALL basic scripts (../seo-audit/scripts/)     │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  check-site.py      → robots.txt, sitemap, 404, URL  │   │
+│  │  check-page.py      → title, H1, meta desc, slug     │   │
+│  │  check-schema.py    → JSON-LD validation              │   │
+│  │  check-pagespeed.py → PageSpeed Insights              │   │
+│  │  fetch-page.py      → raw HTML for analysis           │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                          ↓                                  │
+│  Phase 2: Run full-only scripts (./scripts/)                │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  check-social.py    → OG Tags + Twitter Card          │   │
+│  │  (more scripts added here as modules grow)            │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                          ↓                                  │
+│  Phase 3: LLM-only advanced checks                         │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  E-E-A-T content quality scoring                      │   │
+│  │  Duplicate content signals                            │   │
+│  │  Anchor text quality assessment                       │   │
+│  └──────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## Output
 
-Produce an **Advanced Full SEO Audit Report** structured around the audit modules defined in [references/REFERENCE.md](references/REFERENCE.md).
+Produce an **Advanced Full SEO Audit Report** by filling the template at
+[assets/report-template.html](assets/report-template.html),
+then **save it to a file — never print raw HTML to the terminal**.
 
-Default output format: render the final report using the template at [assets/report-template.html](assets/report-template.html).
+**File naming:** `reports/<hostname>-<slug>-full-audit.html`
+```
+https://example.com/blog/best-tools → reports/example-com-blog-best-tools-full-audit.html
+https://example.com/                → reports/example-com-full-audit.html
+```
 
-If HTML output is not appropriate for the context, output a well-structured, detailed Markdown report instead.
+**After saving, tell the user:**
+```
+✅ Full Report saved → reports/example-com-full-audit.html
+   Open it now? (yes / no)
+```
+If yes → run: `open reports/example-com-full-audit.html`
+
+---
+
+## Scripts
+
+Run scripts in two phases. All output structured JSON — use it directly as evidence.
+
+**Dependencies:** `pip install requests`
+
+### Phase 1: Basic scripts (from `../seo-audit/scripts/`)
+
+```bash
+# 1. site-level checks (robots.txt + sitemap.xml + 404 + URL canonicalization)
+python ../seo-audit/scripts/check-site.py https://example.com
+
+# 2. page-level checks (H1, title, meta description, canonical, URL slug)
+python ../seo-audit/scripts/check-page.py https://example.com --keyword "primary keyword"
+
+# 3. fetch raw HTML for downstream scripts
+python ../seo-audit/scripts/fetch-page.py https://example.com --output /tmp/page.html
+
+# 4. JSON-LD schema validation
+python ../seo-audit/scripts/check-schema.py --file /tmp/page.html
+
+# 5. PageSpeed Insights
+python ../seo-audit/scripts/check-pagespeed.py https://example.com
+```
+
+### Phase 2: Full-only scripts (from `./scripts/`)
+
+```bash
+# 6. Social tags: OG + Twitter Card validation
+python scripts/check-social.py --file /tmp/page.html
+# Or directly from URL:
+python scripts/check-social.py https://example.com
+```
+
+Each script exits with code `0` (all pass/warn) or `1` (any fail/error).
+
+---
+
+## Scope — Full Audit Check Whitelist
+
+Full includes **everything in Basic** plus the items marked ★ below.
+
+### Site-Level Checks (in `{{site_checks_html}}`)
+
+Inherited from Basic:
+- robots.txt · sitemap.xml · 404 Handling · URL Canonicalization · i18n / hreflang
+
+### E-E-A-T Checks (in `{{eeat_checks_html}}`)
+
+Inherited from Basic:
+- About Us · Contact · Privacy Policy · Terms of Service · Media/Partners (only if present)
+
+### Page-Level Checks (in `{{page_checks_html}}`), output in this exact order:
+
+Inherited from Basic:
+PageSpeed (Mobile) · PageSpeed (Desktop) · URL Slug · Title Tag · Meta Description ·
+H1 Tag · Canonical Tag · Image Alt Text · Word Count · Keyword Placement ·
+Heading Structure · Internal Links · Schema (JSON-LD)
+
+★ Full-only additions:
+- **OG Tags** — og:title, og:description, og:image, og:type, og:url presence and validity
+- **Twitter Card** — twitter:card type, title/description/image (with OG fallback detection)
+
+---
+
+## How to Use Script JSON Output
+
+Same rules as Basic — map each field's `status` directly to the report check table:
+- `status` → `pass` / `warn` / `fail` / `error` → badge in report
+- `detail` → starting point for Evidence line
+- Do not contradict script output unless you have additional observable evidence
+
+**For `check-social.py` output:**
+- `og.status` → OG Tags row status
+- `twitter_card.status` → Twitter Card row status
+- `og.fields.*` → individual field details for the detail cell
+- `twitter_card.fields.*` → individual field details, note fallback fields
+
+---
+
+## LLM Review Instructions
+
+### Inherited from Basic
+
+All `llm_review_required: true` handling from `seo-audit` applies here unchanged:
+H1 semantic judgment, Title keyword position, URL Slug evaluation, Meta Description quality.
+See `seo-audit/SKILL.md` for full instructions.
+
+### Full-only LLM checks
+
+**OG Tags quality (always review):**
+```
+og:title   : Does it differ meaningfully from <title>? It should be optimized for social sharing.
+og:description : Is it compelling for social feeds? Different focus than meta description is OK.
+og:image   : Is the URL an actual image path (not a page URL)?
+```
+
+**Twitter Card completeness:**
+```
+If twitter:card is "summary_large_image", twitter:image (or og:image fallback) must be
+at least 300x157px. Flag if the image URL looks like a small icon or favicon.
+```
 
 ---
 
 ## Recommended Workflow
 
-Follow these steps in order:
+1. **Acknowledge scope** — confirm this is a full audit; note any missing data or API keys
+2. **Infer primary keyword** — same logic as Basic
+3. **Phase 1: Run ALL basic scripts** — check-site → check-page → fetch-page → check-schema → check-pagespeed
+4. **Basic checks** — 404 handling, URL canonicalization, E-E-A-T trust pages, i18n/hreflang (same as Basic)
+5. **Phase 2: Run full-only scripts** — check-social
+6. **LLM-only advanced checks** — E-E-A-T content quality, duplicate content signals, anchor text quality
+7. **Summarize findings** — Evidence / Impact / Fix format
+8. **Priority actions** — top 5 highest-impact fixes with effort/impact tags
+9. **Render report** — save to `reports/<hostname>-<slug>-full-audit.html`
 
-1. **Confirm scope** — note the URL, primary keyword (if provided), and any data limitations
-2. **Technical SEO checks** — crawlability, robots, sitemap, canonical, redirects, HTTPS
-3. **On-page SEO checks** — title, meta description, H1–H3 structure, keyword usage, content length
-4. **Structured data** — detect schema markup, validate types and required fields
-5. **Content quality** — assess E-E-A-T signals, readability, and keyword relevance
-6. **Performance signals** — note any available CWV data; flag if unavailable
-7. **Internal linking** — assess anchor text quality and link distribution (if crawl data available)
-8. **Summarize findings** — every finding must follow the Evidence / Impact / Fix format
-9. **Priority actions** — list top 5 highest-impact fixes with effort/impact estimates
-10. **Render report** — output using `assets/report-template.html`
+---
+
+## Report Detail Writing Rules
+
+Same as Basic — strict formatting:
+
+**Pass → one short phrase. No lists, no elaboration.**
+
+**Warn → one `<div class="detail-issue">` with ≤2 bullet points. One `<div class="detail-fix">`.**
+
+**Fail → same as Warn. Lead with the exact failure.**
 
 ---
 
 ## Mandatory Finding Format
 
-Every important finding **must** follow this structure:
-
 ```
 **Finding: [Finding Title]**
 
-- **Evidence:** [Direct observation, measurable data, or quoted content]
-- **Impact:** [Why this matters for SEO ranking, crawlability, or UX]
-- **Fix:** [Specific, actionable recommendation with example if possible]
+- **Evidence:** [Observable fact, data point, or marked assumption]
+- **Impact:** [SEO / UX consequence]
+- **Fix:** [Actionable recommendation with example]
 ```
 
-Do not write vague conclusions. If evidence is insufficient or based on assumption, write:
-
+For Priority Actions, add effort/impact tags:
 ```
-- **Evidence:** [ASSUMPTION] [What is assumed and why]
+1. [High Impact / Low Effort] Fix og:image — social shares currently show no preview.
 ```
 
 ---
 
 ## Reference Files
 
-- Detailed audit modules, field definitions, and agent instructions: [references/REFERENCE.md](references/REFERENCE.md)
+- Detailed audit modules and field definitions: [references/REFERENCE.md](references/REFERENCE.md)
 - Final HTML report template: [assets/report-template.html](assets/report-template.html)
+- Social tags validation script: [scripts/check-social.py](scripts/check-social.py)
+- Basic scripts (inherited): `../seo-audit/scripts/` (check-site, check-page, check-schema, check-pagespeed, fetch-page)
