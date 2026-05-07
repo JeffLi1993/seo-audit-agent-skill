@@ -3,7 +3,7 @@ name: seo-audit-full
 description: >-
   An advanced SEO agent skill for deep, comprehensive single-page SEO audits.
   Includes ALL basic audit checks plus additional modules: Social Tags (OG +
-  Twitter Card), and more. Outputs an advanced full SEO audit report.
+  Twitter Card), content quality, and more. Outputs an advanced full SEO audit report.
   Use when the user says "deep audit", "advanced audit", "technical SEO audit",
   "full SEO audit", "full report", "key report", "comprehensive SEO review",
   or explicitly asks for more than a basic check. Powered by OpenClaw and Claude.
@@ -53,7 +53,6 @@ Use `seo-audit-full` when the user says any of the following:
 │  │  check-site.py      → robots.txt, sitemap, 404, URL  │   │
 │  │  check-page.py      → title, H1, meta desc, slug     │   │
 │  │  check-schema.py    → JSON-LD validation              │   │
-│  │  check-pagespeed.py → PageSpeed Insights              │   │
 │  │  fetch-page.py      → raw HTML for analysis           │   │
 │  └──────────────────────────────────────────────────────┘   │
 │                          ↓                                  │
@@ -115,15 +114,12 @@ python ../seo-audit/scripts/fetch-page.py https://example.com --output /tmp/page
 
 # 4. JSON-LD schema validation
 python ../seo-audit/scripts/check-schema.py --file /tmp/page.html
-
-# 5. PageSpeed Insights
-python ../seo-audit/scripts/check-pagespeed.py https://example.com
 ```
 
 ### Phase 2: Full-only scripts (from `./scripts/`)
 
 ```bash
-# 6. Social tags: OG + Twitter Card validation
+# 5. Social tags: OG + Twitter Card validation
 python scripts/check-social.py --file /tmp/page.html
 # Or directly from URL:
 python scripts/check-social.py https://example.com
@@ -150,9 +146,8 @@ Inherited from Basic:
 ### Page-Level Checks (in `{{page_checks_html}}`), output in this exact order:
 
 Inherited from Basic:
-PageSpeed (Mobile) · PageSpeed (Desktop) · URL Slug · Title Tag · Meta Description ·
-H1 Tag · Canonical Tag · Image Alt Text · Word Count · Keyword Placement ·
-Heading Structure · Internal Links · Schema (JSON-LD)
+URL Slug · Title Tag · Meta Description · H1 Tag · Canonical Tag · Image Alt Text ·
+Word Count · Keyword Placement · Heading Structure · Internal Links · Schema (JSON-LD)
 
 ★ Full-only additions:
 - **OG Tags** — og:title, og:description, og:image, og:type, og:url presence and validity
@@ -204,7 +199,7 @@ at least 300x157px. Flag if the image URL looks like a small icon or favicon.
 
 1. **Acknowledge scope** — confirm this is a full audit; note any missing data or API keys
 2. **Infer primary keyword** — same logic as Basic
-3. **Phase 1: Run ALL basic scripts** — check-site → check-page → fetch-page → check-schema → check-pagespeed
+3. **Phase 1: Run ALL basic scripts** — check-site → check-page → fetch-page → check-schema
 4. **Basic checks** — 404 handling, URL canonicalization, E-E-A-T trust pages, i18n/hreflang (same as Basic)
 5. **Phase 2: Run full-only scripts** — check-social
 6. **LLM-only advanced checks** — E-E-A-T content quality, duplicate content signals, anchor text quality
@@ -248,4 +243,4 @@ For Priority Actions, add effort/impact tags:
 - Detailed audit modules and field definitions: [references/REFERENCE.md](references/REFERENCE.md)
 - Final HTML report template: [assets/report-template.html](assets/report-template.html)
 - Social tags validation script: [scripts/check-social.py](scripts/check-social.py)
-- Basic scripts (inherited): `../seo-audit/scripts/` (check-site, check-page, check-schema, check-pagespeed, fetch-page)
+- Basic scripts (inherited): `../seo-audit/scripts/` (check-site, check-page, check-schema, fetch-page)

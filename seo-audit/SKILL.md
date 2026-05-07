@@ -112,7 +112,7 @@ Allowed E-E-A-T checks (in `{{eeat_checks_html}}`):
 - About Us · Contact · Privacy Policy · Terms of Service · Media/Partners (only if present)
 
 Allowed page-level checks (in `{{page_checks_html}}`), output in this exact order:
-PageSpeed (Mobile) · PageSpeed (Desktop) · URL Slug · Title Tag · Meta Description · H1 Tag · Canonical Tag · Image Alt Text · Word Count · Keyword Placement · Heading Structure · Internal Links · Schema (JSON-LD)
+URL Slug · Title Tag · Meta Description · H1 Tag · Canonical Tag · Image Alt Text · Word Count · Keyword Placement · Heading Structure · Internal Links · Schema (JSON-LD)
 
   Image Alt Text logic:
   - Parse <img> tags from static HTML
@@ -250,20 +250,7 @@ Follow these steps in order:
    - Page exists and linked in footer/nav → **Pass**
    - Optional page missing → skip, do not include row
 
-5. **Run `check-pagespeed.py <url>`** — fetch PageSpeed Insights scores for mobile + desktop
-
-   Thresholds (different per category and strategy):
-
-   | Category | Desktop Pass | Mobile Pass | Warn | Fail |
-   |---|---|---|---|---|
-   | SEO | 100 | 100 | 90–99 | < 90 |
-   | Best Practices | 100 | 100 | 90–99 | < 90 |
-   | Accessibility | 100 | 100 | 90–99 | < 90 |
-   | Performance | ≥ 90 | ≥ 80 | Desktop 80–89 / Mobile 70–79 | Desktop < 80 / Mobile < 70 |
-
-   Output two rows in `{{page_checks_html}}`: PageSpeed (Mobile) and PageSpeed (Desktop)
-
-6. **Run `check-page.py --keyword "<inferred_keyword>"`** — parse the JSON output for H1, title,
+5. **Run `check-page.py --keyword "<inferred_keyword>"`** — parse the JSON output for H1, title,
    meta description, canonical, and URL slug
 
 6. **i18n / hreflang check** — only run if the page contains hreflang tags or `<html lang>` suggests multi-language:
@@ -307,13 +294,13 @@ Follow these steps in order:
    - Fail: expected @type missing entirely
    - N/A: generic landing page — do not penalize
 
-7. **Summarize findings** — each finding must follow the Evidence / Impact / Fix format
+8. **Summarize findings** — each finding must follow the Evidence / Impact / Fix format
 
-7. **Priority actions** — list the top 3 highest-impact fixes
+9. **Priority actions** — list the top 3 highest-impact fixes
 
-8. **Render report** — save to `reports/<hostname>-<slug>-audit.html`, then ask user to open
+10. **Render report** — save to `reports/<hostname>-<slug>-audit.html`, then ask user to open
 
-9. **Upgrade prompt** — if issues beyond basic scope are found, suggest `seo-audit-full`
+11. **Upgrade prompt** — if issues beyond basic scope are found, suggest `seo-audit-full`
 
 ---
 

@@ -18,13 +18,12 @@ first, then adds extra modules. Both target a single page.
 | Technical SEO | robots.txt, sitemap, 404, canonical, HTTPS, hreflang | ★ Same (inherited) |
 | On-page | H1, title, meta desc, canonical, slug, images, word count | ★ Same (inherited) |
 | Schema | JSON-LD extraction + field validation | ★ Same (inherited) |
-| PageSpeed | PSI API (mobile + desktop) | ★ Same (inherited) |
 | E-E-A-T pages | Trust page existence + reachability | ★ Same (inherited) |
 | Social Tags | Not included (banned) | ★ OG Tags + Twitter Card |
 | E-E-A-T Content | Not included | ★ Experience/Expertise/Authority/Trust scoring (LLM) |
 | Duplicate Content | Not included | ★ Near-duplicate signals (LLM) |
 | Anchor Text | Not included | ★ Internal link anchor text quality (LLM) |
-| Scripts | 5 Python scripts | 5 inherited + 1 own (`check-social.py`) |
+| Scripts | 4 Python scripts | 4 inherited + 1 own (`check-social.py`) |
 | Report depth | Summary + Priority Actions + Insights | Full findings with effort/impact priority matrix |
 
 ---
@@ -55,9 +54,6 @@ first, then adds extra modules. Both target a single page.
 | Keyword Placement | LLM check on HTML | Present in first 100 body words |
 | Heading Structure | LLM check on HTML | H2 count, keyword in H2, H3/H2 ratio |
 | Internal Links | LLM check on HTML | Same-origin `<a>` count (excl. nav/footer) |
-| PageSpeed (Mobile) | `check-pagespeed.py` | PSI API scores |
-| PageSpeed (Desktop) | `check-pagespeed.py` | PSI API scores |
-
 ### Module 3: Structured Data (inherited from Basic scripts)
 
 | Check | Script | Notes |
@@ -118,9 +114,8 @@ If API keys are not available:
 > "GSC data is not available — search performance analysis is not included in this audit.
 > To enable: set `GSC_API_KEY` environment variable."
 
-If CWV data is limited:
-> "Core Web Vitals assessment is based on PageSpeed Insights API data only.
-> Field data from CrUX may differ from lab measurements."
+If CWV data is not supplied:
+> "Core Web Vitals data is not available — this report does not include field performance measurements."
 
 ---
 

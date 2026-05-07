@@ -16,7 +16,7 @@
 |---|---|
 | **Audit Summary** | 一句话总结 + 关键问题 / 警告 / 通过项一览 |
 | **Site Checks** | 可抓取性 · URL 规范化 · i18n · Schema · E-E-A-T |
-| **Page Checks** | PageSpeed · TDK · H1 · 标题层级 · 字数 · 内链 |
+| **Page Checks** | TDK · H1 · 标题层级 · 字数 · 内链 |
 | **Priority Actions** | 影响最大的 3 项修复，按优先级排序 |
 | **Insight Walkthrough** | 每个重要发现的 Evidence → Impact → Fix |
 
@@ -44,7 +44,6 @@ URL
 │  check-site.py      robots.txt、sitemap (RFC 9309)│
 │  check-page.py      H1 / title / meta / canonical│
 │  check-schema.py    JSON-LD @type + 字段校验       │
-│  check-pagespeed.py PSI API（移动端 + 桌面端）      │
 │  fetch-page.py      原始 HTML + SSRF 防护          │
 └───────────────────────┬──────────────────────────┘
                         │ JSON + llm_review_required 标志
@@ -73,7 +72,7 @@ URL
 
 | Skill | 层级 | 适用场景 |
 |---|---|---|
-| `seo-audit` | Basic | 默认入口 — 给一个 URL，20+ 项结构化检查 |
+| `seo-audit` | Basic | 默认入口 — 给一个 URL，输出结构化首轮检查 |
 | `seo-audit-full` | Full | 深度审计：Core Web Vitals、内容质量评分、GSC 数据、竞品差距分析 |
 
 ---
@@ -91,7 +90,6 @@ URL
 | i18n / hreflang | 互相引用对称、BCP 47 语言码、x-default、URL 路径结构 | ✅ | ✅ |
 | Schema（JSON-LD） | @type 检测、必填字段校验、@graph 展平、类型冲突检查 | ✅ | ✅ |
 | E-E-A-T 信任页面 | About / Contact / Privacy / Terms — 页面存在（HTTP 200）+ footer/nav 可达 | ✅ | ✅ |
-| PageSpeed Insights | Performance / Accessibility / Best Practices / SEO 评分（移动端 + 桌面端） | ✅ | ✅ |
 | GSC 抓取状态 | 索引覆盖、抓取错误、被屏蔽资源 | — | ✅ |
 | Core Web Vitals | CrUX 字段数据：LCP、CLS、INP | — | ✅ |
 
@@ -127,12 +125,13 @@ seo-audit-skill/
 │       ├── check-site.py              # robots.txt + sitemap → JSON
 │       ├── check-page.py              # TDK + H1 + canonical + slug → JSON
 │       ├── check-schema.py            # JSON-LD 提取 + 校验 → JSON
-│       ├── check-pagespeed.py         # PageSpeed Insights API → JSON
 │       └── fetch-page.py              # 原始 HTML 抓取，SSRF 防护
 └── seo-audit-full/
     ├── SKILL.md
     ├── references/REFERENCE.md
-    └── assets/report-template.html
+    ├── assets/report-template.html
+    └── scripts/
+        └── check-social.py            # OG + Twitter Card 校验 → JSON
 ```
 
 ---
@@ -177,7 +176,6 @@ deep audit: https://example.com
 | `check-site.py` | robots.txt + sitemap — RFC 9309 指令组解析、Allow 覆盖、多 Sitemap 路径追踪 |
 | `check-page.py` | H1 / title / meta / canonical / URL slug — 停用词感知的关键词匹配 |
 | `check-schema.py` | JSON-LD 提取、@graph 展平、@type + 必填字段校验 |
-| `check-pagespeed.py` | PageSpeed Insights API 评分 — 移动端 + 桌面端，4 个类别 |
 | `fetch-page.py` | 原始 HTML 抓取 — SSRF 防护、重定向链追踪、Googlebot UA 选项 |
 
 **依赖：** `pip install requests`

@@ -16,7 +16,7 @@ This document provides detailed field definitions, audit scope, edge case guidan
 **Not suitable for:**
 - Deep technical audits (use `seo-audit-full`)
 - Multi-page site audits
-- Audits requiring GSC data, crawl logs, or CWV metrics
+- Audits requiring performance tooling, GSC data, crawl logs, or CWV metrics
 
 ---
 
@@ -80,7 +80,7 @@ The agent must read `h1.values[0]` + the keyword and judge:
 | Canonical tag | Is `<link rel="canonical">` present and pointing to the correct URL? | Present, self-referencing or correct canonical |
 
 > **Basic audit scope note:** The above checks represent the current basic audit scope.
-> Additional checks (structured data, Core Web Vitals, internal linking, image alt text, etc.) are out of scope for this skill — use `seo-audit-full`.
+> Additional checks (performance metrics, Core Web Vitals, social tags, etc.) are out of scope for this skill — use `seo-audit-full`.
 
 ---
 
@@ -120,7 +120,7 @@ If site-level checks fail due to access restrictions:
 Suggest upgrading to `seo-audit-full` when:
 
 - More than 3 issues are found that require deeper investigation
-- User mentions: performance, Core Web Vitals, structured data, competitor comparison, content strategy, crawl budget
+- User mentions: performance metrics, Core Web Vitals, competitor comparison, content strategy, crawl budget
 - The page has unusual technical setup (SPA, heavy JavaScript rendering, paywalled content)
 - User asks: "is that everything?" or "what else should I check?"
 
@@ -148,4 +148,4 @@ If evidence is not available, write:
 
 Always include a limitations section in the final report. Use language like:
 
-> This audit is based on publicly accessible page signals at the time of analysis. It does not include: source code review, JavaScript rendering audit, Core Web Vitals metrics, Google Search Console data, crawl log analysis, or competitive benchmarking. For a full audit, use `seo-audit-full`.
+> This audit is based on publicly accessible page signals at the time of analysis. It does not include: source code review, JavaScript rendering audit, performance metrics, Core Web Vitals metrics, Google Search Console data, crawl log analysis, or competitive benchmarking. For a full audit, use `seo-audit-full`.

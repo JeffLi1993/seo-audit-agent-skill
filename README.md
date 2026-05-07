@@ -53,7 +53,6 @@ audit this page: https://openclaw.ai
 | i18n / hreflang | Reciprocal symmetry, BCP 47 codes, x-default, URL path structure | ✅ | ✅ |
 | Schema (JSON-LD) | @type detection, required fields, @graph flattening, type conflict check | ✅ | ✅ |
 | E-E-A-T Trust Pages | About / Contact / Privacy / Terms — exists (HTTP 200) + reachable from footer/nav | ✅ | ✅ |
-| PageSpeed Insights | Performance / Accessibility / Best Practices / SEO — mobile + desktop | ✅ | ✅ |
 | GSC Crawl Status | Index coverage, crawl errors, blocked resources | — | ✅ |
 | Core Web Vitals | LCP, CLS, INP from CrUX field data | — | ✅ |
 
@@ -89,12 +88,13 @@ seo-audit-skill/
 │       ├── check-site.py              # robots.txt + sitemap → JSON
 │       ├── check-page.py              # TDK + H1 + canonical + slug → JSON
 │       ├── check-schema.py            # JSON-LD extraction + validation → JSON
-│       ├── check-pagespeed.py         # PageSpeed Insights API → JSON
 │       └── fetch-page.py              # Raw HTML fetcher, SSRF protection
 └── seo-audit-full/
     ├── SKILL.md
     ├── references/REFERENCE.md
-    └── assets/report-template.html
+    ├── assets/report-template.html
+    └── scripts/
+        └── check-social.py            # OG + Twitter Card validation → JSON
 ```
 
 ---
@@ -112,7 +112,6 @@ URL
 │  check-site.py      robots.txt, sitemap (RFC 9309)
 │  check-page.py      H1 / title / meta / canonical│
 │  check-schema.py    JSON-LD @type + field valid. │
-│  check-pagespeed.py PSI API (mobile + desktop)   │
 │  fetch-page.py      raw HTML + SSRF protection   │
 └───────────────────────┬──────────────────────────┘
                         │ JSON + llm_review_required flag
@@ -172,7 +171,6 @@ All scripts output structured JSON to stdout. Exit code `0` = pass/warn, `1` = a
 | `check-site.py` | robots.txt + sitemap — RFC 9309 group parsing, Allow override, multi-Sitemap path |
 | `check-page.py` | H1 / title / meta / canonical / URL slug — keyword match with stop-word-aware filter |
 | `check-schema.py` | JSON-LD extraction, @graph flattening, @type + required field validation |
-| `check-pagespeed.py` | PageSpeed Insights API scores — mobile + desktop, 4 categories |
 | `fetch-page.py` | Raw HTML fetch — SSRF protection, redirect chain tracking, Googlebot UA option |
 
 **Dependency:** `pip install requests`
