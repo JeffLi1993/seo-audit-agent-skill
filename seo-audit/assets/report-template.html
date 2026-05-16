@@ -77,7 +77,7 @@
       border-radius: 6px;
       border: 1px solid #e0e0e0;
       margin-bottom: 20px;
-      overflow: hidden;
+      /* 不用 overflow:hidden，否则小屏下表格横向滚动会被裁切 */
     }
     section > h2 {
       font-size: 13px;
@@ -91,6 +91,8 @@
     }
     section > .section-body {
       padding: 20px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     /* ── Executive summary ── */
@@ -150,10 +152,21 @@
     }
 
     /* ── Check table ── */
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 0 12px;
+    }
+    .table-scroll:last-child { margin-bottom: 0; }
     .check-table {
       width: 100%;
+      min-width: 32rem;
       border-collapse: collapse;
       font-size: 14px;
+    }
+    /* E-E-A-T 等四列表格需要更宽的最小宽度 */
+    .check-table:has(thead tr th:nth-child(4)) {
+      min-width: 42rem;
     }
     .check-table th {
       text-align: left;
@@ -170,7 +183,15 @@
       padding: 10px 12px;
       border-bottom: 1px solid #f0f0f0;
       vertical-align: top;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
+    .check-table th:nth-child(1),
+    .check-table td:nth-child(1) { min-width: 6.5rem; }
+    .check-table th:nth-child(2),
+    .check-table td:nth-child(2) { width: 5.5rem; white-space: nowrap; }
+    .check-table th:nth-child(3),
+    .check-table td:nth-child(3) { min-width: 8rem; }
     .check-table tr:last-child td { border-bottom: none; }
     /* Detail cell: issue description + fix suggestion */
     .detail-issue {
@@ -301,6 +322,53 @@
       max-width: 1080px;
       margin: 0 auto;
       padding: 16px 24px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .summary-groups {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      header, main, footer,
+      header .inner {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+      header { padding-top: 24px; padding-bottom: 18px; }
+      header h1 { font-size: 20px; line-height: 1.35; }
+      .meta-row { flex-direction: column; gap: 8px; }
+      .meta-row span { word-break: break-all; }
+      main { padding-top: 20px; padding-bottom: 32px; }
+      section > h2 { padding: 12px 16px; }
+      section > .section-body { padding: 14px 16px; }
+      .check-table {
+        min-width: 28rem;
+        font-size: 13px;
+      }
+      .check-table th,
+      .check-table td { padding: 8px 10px; }
+      .finding-header {
+        flex-wrap: wrap;
+        align-items: flex-start;
+      }
+      .finding-header h3 { font-size: 13px; }
+      .finding-field {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+      .finding-field .label { padding-top: 0; }
+      .upgrade-box { padding: 14px 16px; font-size: 13px; }
+    }
+
+    @media (max-width: 480px) {
+      body { font-size: 14px; }
+      .summary-groups { gap: 10px; }
+      .summary-group { padding: 10px 12px; }
+      .check-table { min-width: 26rem; }
+      .check-table:has(thead tr th:nth-child(4)) { min-width: 34rem; }
     }
   </style>
 </head>
